@@ -1012,11 +1012,64 @@ button { font-family: inherit; }
 }
 
 /* =============== RESULT CARDS (Dobra 6) =============== */
-.result-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
+.result-carousel-wrap {
+  position: relative;
 }
+.result-carousel {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  gap: 20px;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.result-carousel::-webkit-scrollbar { display: none; }
+.result-carousel .result-card {
+  flex: 0 0 calc((100% - 40px) / 3);
+  scroll-snap-align: start;
+}
+.carousel-nav {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin-top: 28px;
+}
+.carousel-dot {
+  width: 8px; height: 8px;
+  border-radius: 4px;
+  background: var(--border-2);
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.2s, width 0.2s;
+}
+.carousel-dot.active {
+  background: var(--snel-blue-400);
+  width: 24px;
+}
+.carousel-btn {
+  position: absolute;
+  top: 45%;
+  transform: translateY(-50%);
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  background: white;
+  border: 1px solid var(--border-2);
+  box-shadow: 0 2px 12px rgba(13,24,77,0.10);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  z-index: 2;
+  color: var(--snel-blue-900);
+  font-size: 18px;
+  line-height: 1;
+  transition: box-shadow 0.15s, opacity 0.15s;
+}
+.carousel-btn:hover { box-shadow: 0 4px 20px rgba(13,24,77,0.18); }
+.carousel-btn:disabled { opacity: 0.25; cursor: default; pointer-events: none; }
+.carousel-btn--prev { left: -20px; }
+.carousel-btn--next { right: -20px; }
 .result-card {
   background: #fff;
   border: 1px solid var(--border-2);
@@ -1069,10 +1122,11 @@ button { font-family: inherit; }
   text-align: center;
 }
 @media (max-width: 860px) {
-  .result-grid { grid-template-columns: repeat(2, 1fr); }
+  .result-carousel .result-card { flex: 0 0 calc((100% - 20px) / 2); }
 }
 @media (max-width: 560px) {
-  .result-grid { grid-template-columns: 1fr; }
+  .result-carousel .result-card { flex: 0 0 100%; }
+  .carousel-btn { display: none; }
 }
 
 /* =============== WHY NOW (Dobra 7) =============== */
@@ -2916,6 +2970,36 @@ const BigNumbers = () =>
 
 // ============ RESULT CARDS ============
 const ResultCards = () => {
+  const trackRef = React.useRef(null);
+  const [activeIdx, setActiveIdx] = React.useState(0);
+  const TOTAL = 5;
+
+  const scrollTo = React.useCallback((idx) => {
+    const track = trackRef.current;
+    if (!track) return;
+    const card = track.children[idx];
+    if (!card) return;
+    track.scrollTo({ left: card.offsetLeft - track.offsetLeft, behavior: 'smooth' });
+  }, []);
+
+  React.useEffect(() => {
+    const track = trackRef.current;
+    if (!track) return;
+    const onScroll = () => {
+      const cards = Array.from(track.children);
+      const center = track.scrollLeft + track.offsetWidth / 2;
+      let closest = 0;
+      let minDist = Infinity;
+      cards.forEach((c, i) => {
+        const dist = Math.abs(c.offsetLeft + c.offsetWidth / 2 - track.scrollLeft - track.offsetWidth / 2);
+        if (dist < minDist) { minDist = dist; closest = i; }
+      });
+      setActiveIdx(closest);
+    };
+    track.addEventListener('scroll', onScroll, { passive: true });
+    return () => track.removeEventListener('scroll', onScroll);
+  }, []);
+
   const rentab = [100, 102, 105, 108, 112, 116, 121, 127, 134, 142, 149, 156, 162];
   const cdi = [100, 101, 103, 105, 107, 109, 111, 113, 116, 119, 122, 125, 128];
   const ifix = [100, 102, 104, 103, 105, 108, 111, 113, 115, 118, 121, 123, 126];
@@ -2957,9 +3041,11 @@ const ResultCards = () => {
           </p>
         </FadeIn>
 
-        <div className="result-grid">
+        <div className="result-carousel-wrap">
+          <button className="carousel-btn carousel-btn--prev" disabled={activeIdx === 0} onClick={() => scrollTo(activeIdx - 1)} aria-label="Anterior">&#8249;</button>
+          <button className="carousel-btn carousel-btn--next" disabled={activeIdx === TOTAL - 1} onClick={() => scrollTo(activeIdx + 1)} aria-label="Próximo">&#8250;</button>
+          <div className="result-carousel" ref={trackRef}>
           {/* Card 1 — Rentabilidade Histórica */}
-          <FadeIn delay={0}>
             <div className="result-card">
               <div className="result-card__head">
                 <span className="result-card__num">01</span>
@@ -2979,10 +3065,8 @@ const ResultCards = () => {
               <h4>Rentabilidade Histórica</h4>
               <p>Evolução do valor da cota desde o início, comparada ao CDI. O SNEL11 demonstra consistência na preservação de capital e geração de renda.</p>
             </div>
-          </FadeIn>
 
-          {/* Card 2 — Distribuição */}
-          <FadeIn delay={80}>
+            {/* Card 2 — Distribuição */}
             <div className="result-card">
               <div className="result-card__head">
                 <span className="result-card__num">02</span>
@@ -2998,10 +3082,8 @@ const ResultCards = () => {
               <h4>Histórico de Distribuição</h4>
               <p>Rendimentos distribuídos mês a mês com crescimento gradual nos proventos por cota.</p>
             </div>
-          </FadeIn>
 
-          {/* Card 3 — Mapa Brasil */}
-          <FadeIn delay={140}>
+            {/* Card 3 — Mapa Brasil */}
             <div className="result-card">
               <div className="result-card__head">
                 <span className="result-card__num">03</span>
@@ -3013,10 +3095,8 @@ const ResultCards = () => {
               <h4>Localização das Usinas</h4>
               <p>Portfólio posicionado nas regiões com maior irradiação solar do país, maximizando geração.</p>
             </div>
-          </FadeIn>
 
-          {/* Card 4 — Patrimônio */}
-          <FadeIn delay={200}>
+            {/* Card 4 — Patrimônio */}
             <div className="result-card">
               <div className="result-card__head">
                 <span className="result-card__num">04</span>
@@ -3028,10 +3108,8 @@ const ResultCards = () => {
               <h4>Evolução do Patrimônio</h4>
               <p>Cada captação direcionada para aquisição ou construção de novas usinas — ampliando a base geradora de renda.</p>
             </div>
-          </FadeIn>
 
-          {/* Card 5 — Cotistas */}
-          <FadeIn delay={260}>
+            {/* Card 5 — Cotistas */}
             <div className="result-card">
               <div className="result-card__head">
                 <span className="result-card__num">05</span>
@@ -3043,7 +3121,13 @@ const ResultCards = () => {
               <h4>Evolução dos Cotistas</h4>
               <p>Base cresceu a cada emissão — reflexo da confiança do mercado. Mais cotistas melhora liquidez e reduz concentração.</p>
             </div>
-          </FadeIn>
+          </div>
+
+          <div className="carousel-nav">
+            {Array.from({ length: TOTAL }).map((_, i) => (
+              <button key={i} className={`carousel-dot${activeIdx === i ? ' active' : ''}`} onClick={() => scrollTo(i)} aria-label={`Card ${i + 1}`} />
+            ))}
+          </div>
         </div>
 
         <FadeIn delay={320}>
