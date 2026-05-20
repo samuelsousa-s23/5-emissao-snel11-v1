@@ -45,7 +45,7 @@
   --snel-blue-50:   #F5F7FC;   /* near-white background */
   --snel-blue-100:  #E1E8F3;   /* light gray-blue */
   --snel-blue-200:  #CFE3FD;   /* very light blue */
-  --snel-blue-400:  #609CFC;   /* signature mid-blue */
+  --snel-blue-400:  #2362C9;   /* signature mid-blue */
   --snel-blue-900:  #0D184D;   /* deep institutional navy */
 
   --snel-sun-500:   #FABE1E;   /* solar yellow */
@@ -2464,7 +2464,7 @@ Object.assign(window, { Container, Btn, EmissionLockup, SectionHeader, FadeIn })
 // SVG mini chart placeholders for result cards.
 
 // Line area chart with subtle grid
-const AreaChart = ({ data = [], width = 480, height = 180, color = '#609CFC', fill = 'rgba(96,156,252,0.15)', comparison = null, comparisonColor = '#A0ABB9' }) => {
+const AreaChart = ({ data = [], width = 480, height = 180, color = '#2362C9', fill = 'rgba(96,156,252,0.15)', comparison = null, comparisonColor = '#A0ABB9' }) => {
   const max = Math.max(...data, ...(comparison || [])) * 1.08;
   const min = Math.min(...data, ...(comparison || [])) * 0.95;
   const w = width;
@@ -2504,7 +2504,7 @@ const AreaChart = ({ data = [], width = 480, height = 180, color = '#609CFC', fi
 };
 
 // Bar chart for monthly distribution
-const BarChart = ({ data = [], width = 360, height = 180, color = '#609CFC', highlightColor = '#FABE1E' }) => {
+const BarChart = ({ data = [], width = 360, height = 180, color = '#2362C9', highlightColor = '#FABE1E' }) => {
   const max = Math.max(...data) * 1.05;
   const padL = 28, padR = 10, padT = 10, padB = 22;
   const innerW = width - padL - padR;
@@ -2532,7 +2532,7 @@ const BrazilMap = ({ pins = [], width = 360, height = 240 }) => {
   const brPath = "M165,12 L194,18 L210,30 L218,48 L230,52 L240,72 L260,80 L286,96 L296,116 L302,140 L312,152 L312,170 L306,184 L290,196 L286,212 L272,222 L260,232 L246,240 L218,246 L198,254 L184,258 L168,260 L148,264 L130,260 L114,256 L100,248 L86,234 L72,224 L60,212 L52,196 L44,178 L40,158 L40,140 L46,122 L52,108 L62,90 L72,76 L82,66 L96,54 L110,40 L128,28 L146,18 Z";
   return (
     <svg viewBox={`0 0 ${width} ${height}`} width="100%" height="100%">
-      <path d={brPath} fill="rgba(96,156,252,0.18)" stroke="#609CFC" strokeWidth="1.2" />
+      <path d={brPath} fill="rgba(96,156,252,0.18)" stroke="#2362C9" strokeWidth="1.2" />
       {pins.map((p, i) => (
         <g key={i}>
           <circle cx={p.x} cy={p.y} r={p.size || 8} fill="#FABE1E" opacity="0.25" />
@@ -2563,7 +2563,7 @@ const PatrimonyChart = ({ data = [], labels = [], width = 360, height = 180 }) =
         const isLast = i === data.length - 1;
         return (
           <g key={i}>
-            <rect x={x} y={y} width={bw - 8} height={bh} rx="4" fill={isLast ? '#0D184D' : '#609CFC'} opacity={isLast ? 1 : 0.85} />
+            <rect x={x} y={y} width={bw - 8} height={bh} rx="4" fill={isLast ? '#0D184D' : '#2362C9'} opacity={isLast ? 1 : 0.85} />
             {labels[i] && (
               <text x={x + (bw - 8) / 2} y={padT + innerH + 14} fill="#A0ABB9" fontSize="9" textAnchor="middle" fontFamily="Inter">{labels[i]}</text>
             )}
@@ -2608,7 +2608,7 @@ const CotistasChart = ({ data = [], labels = [], width = 360, height = 180 }) =>
 };
 
 // Tiny sparkline (for big number cards)
-const Spark = ({ data = [3, 5, 4, 7, 6, 9, 8, 11], color = '#609CFC', width = 86, height = 28 }) => {
+const Spark = ({ data = [3, 5, 4, 7, 6, 9, 8, 11], color = '#2362C9', width = 86, height = 28 }) => {
   const max = Math.max(...data), min = Math.min(...data);
   const pts = data.map((v, i) => {
     const x = (i / (data.length - 1)) * width;
@@ -2903,7 +2903,7 @@ const BigNumbers = () =>
               </div>
               {n.spark &&
           <div className="bignum__spark">
-                  <Spark data={n.spark} color={n.accent ? '#FE8E23' : '#609CFC'} />
+                  <Spark data={n.spark} color={n.accent ? '#FE8E23' : '#2362C9'} />
                 </div>
           }
             </div>
@@ -2969,7 +2969,7 @@ const ResultCards = () => {
                 <AreaChart data={rentab} comparison={cdi} comparisonColor="#A0ABB9" width={260} height={160} />
                 <div style={{ display: 'flex', gap: 12, marginTop: 8, fontSize: 10, color: 'var(--fg-3)' }}>
                   <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
-                    <span style={{ width: 12, height: 3, background: '#609CFC', borderRadius: 2 }} /> SNEL11
+                    <span style={{ width: 12, height: 3, background: '#2362C9', borderRadius: 2 }} /> SNEL11
                   </span>
                   <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
                     <span style={{ width: 12, height: 3, background: '#A0ABB9', borderRadius: 2 }} /> CDI
@@ -3582,7 +3582,7 @@ function App() {
     // Headline accent (the colored words in section headers)
     const accentMap = {
       sun: '#FABE1E',
-      blue: '#609CFC',
+      blue: '#2362C9',
       orange: '#FE8E23',
     };
     root.style.setProperty('--accent-headline', accentMap[t.headlineAccent] || accentMap.sun);
