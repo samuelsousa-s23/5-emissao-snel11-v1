@@ -2979,19 +2979,21 @@ const ResultCards = () => {
     if (!track) return;
     const card = track.children[idx];
     if (!card) return;
-    track.scrollTo({ left: card.offsetLeft - track.offsetLeft, behavior: 'smooth' });
+    const trackRect = track.getBoundingClientRect();
+    const cardRect = card.getBoundingClientRect();
+    track.scrollBy({ left: cardRect.left - trackRect.left, behavior: 'smooth' });
   }, []);
 
   React.useEffect(() => {
     const track = trackRef.current;
     if (!track) return;
     const onScroll = () => {
-      const cards = Array.from(track.children);
-      const center = track.scrollLeft + track.offsetWidth / 2;
-      let closest = 0;
-      let minDist = Infinity;
-      cards.forEach((c, i) => {
-        const dist = Math.abs(c.offsetLeft + c.offsetWidth / 2 - track.scrollLeft - track.offsetWidth / 2);
+      const trackRect = track.getBoundingClientRect();
+      const trackCenter = trackRect.left + trackRect.width / 2;
+      let closest = 0, minDist = Infinity;
+      Array.from(track.children).forEach((c, i) => {
+        const r = c.getBoundingClientRect();
+        const dist = Math.abs(r.left + r.width / 2 - trackCenter);
         if (dist < minDist) { minDist = dist; closest = i; }
       });
       setActiveIdx(closest);
