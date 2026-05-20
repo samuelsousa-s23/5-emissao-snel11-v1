@@ -3042,8 +3042,8 @@ const ResultCards = () => {
         </FadeIn>
 
         <div className="result-carousel-wrap">
-          <button className="carousel-btn carousel-btn--prev" disabled={activeIdx === 0} onClick={() => scrollTo(activeIdx - 1)} aria-label="Anterior">&#8249;</button>
-          <button className="carousel-btn carousel-btn--next" disabled={activeIdx === TOTAL - 1} onClick={() => scrollTo(activeIdx + 1)} aria-label="Próximo">&#8250;</button>
+          <button className="carousel-btn carousel-btn--prev" onClick={() => scrollTo((activeIdx - 1 + TOTAL) % TOTAL)} aria-label="Anterior">&#8249;</button>
+          <button className="carousel-btn carousel-btn--next" onClick={() => scrollTo((activeIdx + 1) % TOTAL)} aria-label="Próximo">&#8250;</button>
           <div className="result-carousel" ref={trackRef}>
           {/* Card 1 — Rentabilidade Histórica */}
             <div className="result-card">
