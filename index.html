@@ -1015,19 +1015,17 @@ button { font-family: inherit; }
 .result-carousel-wrap {
   position: relative;
 }
+.result-carousel-overflow {
+  overflow: hidden;
+}
 .result-carousel {
   display: flex;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  scroll-behavior: smooth;
   gap: 20px;
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
 }
-.result-carousel::-webkit-scrollbar { display: none; }
 .result-carousel .result-card {
   flex: 0 0 calc((100% - 40px) / 3);
-  scroll-snap-align: start;
 }
 .carousel-nav {
   display: flex;
@@ -2972,34 +2970,21 @@ const BigNumbers = () =>
 const ResultCards = () => {
   const trackRef = React.useRef(null);
   const [activeIdx, setActiveIdx] = React.useState(0);
+  const [step, setStep] = React.useState(0);
   const TOTAL = 5;
 
-  const getStep = React.useCallback(() => {
-    const track = trackRef.current;
-    if (!track || !track.children[0]) return 0;
-    return track.children[0].offsetWidth + 20;
+  React.useLayoutEffect(() => {
+    const measure = () => {
+      const track = trackRef.current;
+      if (track && track.children[0]) setStep(track.children[0].offsetWidth + 20);
+    };
+    measure();
+    window.addEventListener('resize', measure);
+    return () => window.removeEventListener('resize', measure);
   }, []);
 
-  const scrollTo = React.useCallback((idx) => {
-    const track = trackRef.current;
-    if (!track) return;
-    const step = getStep();
-    if (!step) return;
-    track.scrollTo({ left: idx * step, behavior: 'smooth' });
-  }, [getStep]);
-
-  React.useEffect(() => {
-    const track = trackRef.current;
-    if (!track) return;
-    const onScroll = () => {
-      const step = getStep();
-      if (!step) return;
-      const idx = Math.min(Math.round(track.scrollLeft / step), TOTAL - 1);
-      setActiveIdx(idx);
-    };
-    track.addEventListener('scroll', onScroll, { passive: true });
-    return () => track.removeEventListener('scroll', onScroll);
-  }, [getStep]);
+  const prev = () => setActiveIdx(i => (i - 1 + TOTAL) % TOTAL);
+  const next = () => setActiveIdx(i => (i + 1) % TOTAL);
 
   const rentab = [100, 102, 105, 108, 112, 116, 121, 127, 134, 142, 149, 156, 162];
   const cdi = [100, 101, 103, 105, 107, 109, 111, 113, 116, 119, 122, 125, 128];
@@ -3043,9 +3028,10 @@ const ResultCards = () => {
         </FadeIn>
 
         <div className="result-carousel-wrap">
-          <button className="carousel-btn carousel-btn--prev" onClick={() => scrollTo((activeIdx - 1 + TOTAL) % TOTAL)} aria-label="Anterior">&#8249;</button>
-          <button className="carousel-btn carousel-btn--next" onClick={() => scrollTo((activeIdx + 1) % TOTAL)} aria-label="Próximo">&#8250;</button>
-          <div className="result-carousel" ref={trackRef}>
+          <button className="carousel-btn carousel-btn--prev" onClick={prev} aria-label="Anterior">&#8249;</button>
+          <button className="carousel-btn carousel-btn--next" onClick={next} aria-label="Próximo">&#8250;</button>
+          <div className="result-carousel-overflow">
+          <div className="result-carousel" ref={trackRef} style={{ transform: step > 0 ? `translateX(${-activeIdx * step}px)` : undefined }}>
           {/* Card 1 — Rentabilidade Histórica */}
             <div className="result-card">
               <div className="result-card__head">
@@ -3123,10 +3109,11 @@ const ResultCards = () => {
               <p>Base cresceu a cada emissão — reflexo da confiança do mercado. Mais cotistas melhora liquidez e reduz concentração.</p>
             </div>
           </div>
+          </div>
 
           <div className="carousel-nav">
             {Array.from({ length: TOTAL }).map((_, i) => (
-              <button key={i} className={`carousel-dot${activeIdx === i ? ' active' : ''}`} onClick={() => scrollTo(i)} aria-label={`Card ${i + 1}`} />
+              <button key={i} className={`carousel-dot${activeIdx === i ? ' active' : ''}`} onClick={() => setActiveIdx(i)} aria-label={`Card ${i + 1}`} />
             ))}
           </div>
         </div>
