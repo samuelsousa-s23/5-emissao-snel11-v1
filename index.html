@@ -2974,33 +2974,32 @@ const ResultCards = () => {
   const [activeIdx, setActiveIdx] = React.useState(0);
   const TOTAL = 5;
 
+  const getStep = React.useCallback(() => {
+    const track = trackRef.current;
+    if (!track || !track.children[0]) return 0;
+    return track.children[0].offsetWidth + 20;
+  }, []);
+
   const scrollTo = React.useCallback((idx) => {
     const track = trackRef.current;
     if (!track) return;
-    const card = track.children[idx];
-    if (!card) return;
-    const trackRect = track.getBoundingClientRect();
-    const cardRect = card.getBoundingClientRect();
-    track.scrollBy({ left: cardRect.left - trackRect.left, behavior: 'smooth' });
-  }, []);
+    const step = getStep();
+    if (!step) return;
+    track.scrollTo({ left: idx * step, behavior: 'smooth' });
+  }, [getStep]);
 
   React.useEffect(() => {
     const track = trackRef.current;
     if (!track) return;
     const onScroll = () => {
-      const trackRect = track.getBoundingClientRect();
-      const trackCenter = trackRect.left + trackRect.width / 2;
-      let closest = 0, minDist = Infinity;
-      Array.from(track.children).forEach((c, i) => {
-        const r = c.getBoundingClientRect();
-        const dist = Math.abs(r.left + r.width / 2 - trackCenter);
-        if (dist < minDist) { minDist = dist; closest = i; }
-      });
-      setActiveIdx(closest);
+      const step = getStep();
+      if (!step) return;
+      const idx = Math.min(Math.round(track.scrollLeft / step), TOTAL - 1);
+      setActiveIdx(idx);
     };
     track.addEventListener('scroll', onScroll, { passive: true });
     return () => track.removeEventListener('scroll', onScroll);
-  }, []);
+  }, [getStep]);
 
   const rentab = [100, 102, 105, 108, 112, 116, 121, 127, 134, 142, 149, 156, 162];
   const cdi = [100, 101, 103, 105, 107, 109, 111, 113, 116, 119, 122, 125, 128];
