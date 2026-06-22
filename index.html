@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+@font-face{font-family:"Inter";src:url("fonts/Inter-VariableFont_opsz_wght.ttf") format("truetype-variations");font-weight:100 900;font-style:normal;font-display:swap;}
+@font-face{font-family:"Inter";src:url("fonts/Inter-Italic-VariableFont_opsz_wght.ttf") format("truetype-variations");font-weight:100 900;font-style:italic;font-display:swap;}
+@font-face{font-family:"Roboto Flex";src:url("fonts/RobotoFlex.ttf") format("truetype-variations");font-weight:100 1000;font-stretch:25% 151%;font-style:oblique -10deg 0deg;font-display:swap;}
+html,body{margin:0;padding:0;}
+*{box-sizing:border-box;}
+/* smooth hover transitions */
+a, button{transition:background-color .2s ease, color .2s ease, box-shadow .22s cubic-bezier(0.2,0.7,0.2,1), transform .22s cubic-bezier(0.2,0.7,0.2,1), border-color .2s ease;}
+div[style*="box-shadow"]{transition:box-shadow .24s cubic-bezier(0.2,0.7,0.2,1), transform .24s cubic-bezier(0.2,0.7,0.2,1);}
+/* chart images: rounded corners + soft lift on hover */
+.chart-img{border-radius:20px; box-shadow:0 1px 3px rgba(13,24,77,0.08); transition:transform .3s cubic-bezier(0.2,0.7,0.2,1), box-shadow .3s cubic-bezier(0.2,0.7,0.2,1); cursor:default;}
+.chart-img:hover{transform:translateY(-5px); box-shadow:0 16px 34px rgba(13,24,77,0.16);}
+@media (prefers-reduced-motion: reduce){.chart-img{transition:none;} .chart-img:hover{transform:none;}}
+/* scroll reveal (driven by JS adding data-shown; resilient to re-renders) */
+[data-reveal]{transition:opacity .7s cubic-bezier(0.2,0.7,0.2,1), transform .7s cubic-bezier(0.2,0.7,0.2,1);}
+[data-reveal]:not([data-shown]){opacity:0; transform:translateY(16px);}
+[data-reveal][data-shown]{opacity:1; transform:none;}
+@media (prefers-reduced-motion: reduce){[data-reveal]{opacity:1 !important; transform:none !important; transition:none;} a,button,div[style*="box-shadow"]{transition:none;}}
+/* soft shine sweeping across the green CTAs */
+a[href="https://api.whatsapp.com/send/?phone=5511950297116&text=ENTRAR+NA+COMUNIDADE"]{position:relative; overflow:hidden;}
+a[href="https://api.whatsapp.com/send/?phone=5511950297116&text=ENTRAR+NA+COMUNIDADE"]::after{content:""; position:absolute; top:0; bottom:0; left:-160%; width:55%; background:linear-gradient(115deg, transparent 0%, rgba(255,255,255,0.5) 50%, transparent 100%); transform:skewX(-18deg); pointer-events:none; animation:ctaShine 3.4s cubic-bezier(0.4,0,0.2,1) infinite;}
+@keyframes ctaShine{0%{left:-160%;} 55%{left:160%;} 100%{left:160%;}}
+@keyframes caretBlink{0%,49%{opacity:1;} 50%,100%{opacity:0;}}
+@media (prefers-reduced-motion: reduce){a[href="https://api.whatsapp.com/send/?phone=5511950297116&text=ENTRAR+NA+COMUNIDADE"]::after{display:none;}}
+img{max-width:100%;display:block;}
+a{color:inherit;text-decoration:none;}
+::selection{background:#FABE1E;color:#0D184D;}
+.cta-m{display:none;}
+.m-navbar-cta{display:none;}
+.m-como-arrow{display:none;}
+.m-aloc-mobile{display:none;}
+.m-aloc-track::-webkit-scrollbar{display:none;}
+.m-como-track::-webkit-scrollbar{display:none;}
+@property --uidx{ syntax:'<number>'; inherits:false; initial-value:0; }
+
+/* ===== MOBILE ===== */
+@media (max-width: 768px){
+  .m-nav{ display:none !important; }
+  .m-navbar-cta{ display:inline-flex !important; }
+  .m-hero{ margin:0 !important; }
+  .m-hero-h1{ font-size:55px !important; width:auto !important; max-width:100% !important; transform:none !important; }
+  /* cards: 2 colunas */
+  .m-grid-2{ grid-template-columns:repeat(2,minmax(0,1fr)) !important; }
+  /* detalhes: sem recuo lateral */
+  .m-detalhes{ margin-left:0 !important; margin-right:0 !important; }
+  .m-detalhes [data-dc-tpl] > div, .m-detalhes > div > div{ max-width:none !important; }
+  .m-detalhes-grid{ grid-template-columns:1fr !important; gap:16px !important; }
+  /* tabela de alocação: métrica em linha cheia, valores lado a lado */
+  .m-aloc-head, .m-aloc-row{ grid-template-columns:1fr 1fr !important; gap:6px 14px !important; }
+  .m-aloc-metric{ grid-column:1 / -1 !important; }
+  .m-aloc-val{ font-size:clamp(15px,4vw,20px) !important; overflow-wrap:anywhere; }
+  /* cronograma: data acima do conteúdo */
+  .m-crono-row{ grid-template-columns:1fr !important; gap:8px !important; }
+  /* rodapé */
+  .m-footer-bottom{ grid-template-columns:1fr !important; gap:28px !important; }
+  .m-footer-anbima{ justify-content:flex-start !important; }
+  .m-logo{ height:22px !important; }
+  /* CTAs: encaixar no mobile (sem estourar a largura) */
+  a[href="https://api.whatsapp.com/send/?phone=5511950297116&text=ENTRAR+NA+COMUNIDADE"]{
+    white-space:normal !important;
+    max-width:100% !important;
+    padding-left:22px !important; padding-right:22px !important;
+    font-size:15px !important;
+    line-height:1.25 !important;
+    text-align:center !important;
+  }
+  a[href="https://api.whatsapp.com/send/?phone=5511950297116&text=ENTRAR+NA+COMUNIDADE"] .cta-d{ display:none !important; }
+  a[href="https://api.whatsapp.com/send/?phone=5511950297116&text=ENTRAR+NA+COMUNIDADE"] .cta-m{ display:inline !important; }
+  a[href="https://api.whatsapp.com/send/?phone=5511950297116&text=ENTRAR+NA+COMUNIDADE"] svg{ width:17px !important; height:17px !important; flex-shrink:0; }
+  .chart-cotistas-d{ display:none !important; }
+  .chart-cotistas-m{ display:block !important; }
+  /* HERO: CTA acima dos cards + cards ~30% menores */
+  .m-hero-cta{ order:1 !important; margin-bottom:40px !important; }
+  #sobre .m-grid-2{ order:2 !important; margin-top:24px !important; gap:12px !important; }
+  .m-hero-trust{ order:3 !important; margin-top:32px !important; gap:7px !important; flex-wrap:nowrap !important; justify-content:space-between !important; }
+  .m-hero-trust img{ height:auto !important; width:auto !important; max-height:20px !important; max-width:15.5% !important; object-fit:contain !important; }
+  .m-hero-disc{ order:4 !important; }
+  #sobre .m-grid-2 > div{ padding:13px 11px !important; gap:6px !important; border-radius:16px !important; }
+  #sobre .m-grid-2 > div > div:first-child{ width:27px !important; height:27px !important; border-radius:8px !important; }
+  #sobre .m-grid-2 svg{ width:14px !important; height:14px !important; }
+  #sobre .m-grid-2 strong{ font-size:22px !important; }
+  #sobre .m-grid-2 > div:nth-child(3){ grid-column:1 / -1 !important; width:calc(50% - 6px) !important; margin-left:auto !important; margin-right:auto !important; }
+  #sobre .m-grid-2 span{ font-size:10px !important; }
+  /* remove mancha amarela do hero */
+  .m-glow-y{ display:none !important; }
+  /* carrossel de usinas: 1 foto por vez no mobile */
+  .m-usina-track{ --per:1 !important; }
+  /* Como funciona: carrossel 1 card por vez no mobile */
+  .m-como-track{ display:flex !important; overflow-x:auto; scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch; scroll-behavior:smooth; gap:14px !important; scrollbar-width:none; }
+  .m-como-track > div{ flex:0 0 100% !important; scroll-snap-align:center; padding:28px 22px !important; }
+  .m-como-arrow{ display:grid !important; }
+  /* Alocação: tabela vira carrossel de cards no mobile */
+  .m-aloc-desktop{ display:none !important; }
+  .m-aloc-mobile{ display:block !important; }
+  .m-aloc-box{ background:transparent !important; border:none !important; box-shadow:none !important; padding:0 !important; }
+  .m-aloc-disc{ font-size:11px !important; margin-top:18px !important; }
+  .m-risk-grid{ grid-template-columns:1fr !important; gap:36px !important; }
+  /* downloads: empilhar em 1 coluna */
+  .m-dl-card{ grid-template-columns:1fr !important; gap:18px !important; }
+  .m-dl-intro{ text-align:center; margin-bottom:6px; }
+  .m-dl-intro p{ margin-left:auto !important; margin-right:auto !important; }
+}
+/* Hero shader background (Paper Shaders MeshGradient) */
+#hero-shader-bg{position:absolute;inset:0;width:100%;height:100%;opacity:.05;pointer-events:none;z-index:0;display:block;overflow:hidden;}
+#hero-shader-bg canvas{display:block;width:100%!important;height:100%!important;}
+@media (prefers-reduced-motion: reduce){#hero-shader-bg{display:none;}}
+</style>
+</helmet>
+
+<div style="background:#F5F7FC;color:#0D184D;font-family:Inter,system-ui,sans-serif;font-size:16px;line-height:1.45;-webkit-font-smoothing:antialiased;overflow-x:clip">
+
+  <template id="__bundler_thumbnail" data-bg-color="#0D184D">
+    <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+      <rect width="1200" height="800" fill="#0D184D"></rect>
+      <circle cx="600" cy="330" r="120" fill="#FABE1E"></circle>
+      <g stroke="#FABE1E" stroke-width="14" stroke-linecap="round">
+        <line x1="600" y1="120" x2="600" y2="170"></line>
+        <line x1="600" y1="490" x2="600" y2="540"></line>
+        <line x1="390" y1="330" x2="440" y2="330"></line>
+        <line x1="760" y1="330" x2="810" y2="330"></line>
+        <line x1="452" y1="182" x2="487" y2="217"></line>
+        <line x1="713" y1="443" x2="748" y2="478"></line>
+        <line x1="748" y1="182" x2="713" y2="217"></line>
+        <line x1="487" y1="443" x2="452" y2="478"></line>
+      </g>
+      <text x="600" y="650" font-family="Arial,sans-serif" font-size="84" font-weight="800" fill="#FFFFFF" text-anchor="middle" letter-spacing="2">SNEL<tspan fill="#FABE1E">11</tspan></text>
+    </svg>
+  </template>
+
+
+  <!-- ALERT BAR -->
+  <div style="background:#FABE1E;color:#0D184D;font-size:13px;font-weight:500;letter-spacing:0.01em">
+    <div style="display: flex; align-items: center; justify-content: center; gap: 14px; padding: 11px 24px; text-align: center; font-size: 19px; padding-top: 9px; padding-bottom: 9px; margin-top: -14px; margin-bottom: -14px; height: 54px">
+      <span style="font-weight:700;letter-spacing:0.16em">MATERIAL PUBLICITÁRIO</span>
+    </div>
+  </div>
+
+  <!-- HEADER -->
+  <header style="position:sticky;top:0;z-index:50;backdrop-filter:blur(12px);background:rgba(245,247,252,0.85);border-bottom:1px solid #E1E8F3">
+    <div style="max-width:1240px;margin:0 auto;padding-inline:24px">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 0;gap:32px">
+        <div style="display:flex;align-items:center;gap:14px">
+          <img src="assets/snel-logo-black.svg" alt="SNEL11" class="m-logo" style="height:28px">
+        </div>
+        <nav class="m-nav" style="display:flex;align-items:center;gap:18px;flex-wrap:nowrap">
+          <a href="#contexto" style="font-size:12.5px;font-weight:500;color:#3A4566" style-hover="color:#0D184D">Setor</a>
+          <a href="#numeros" style="font-size:12.5px;font-weight:500;color:#3A4566" style-hover="color:#0D184D">Crescimento</a>
+          <a href="#performance" style="font-size:12.5px;font-weight:500;color:#3A4566" style-hover="color:#0D184D">Performance</a>
+          <a href="#risco-retorno" style="font-size:12.5px;font-weight:500;color:#3A4566" style-hover="color:#0D184D">Risco x Retorno</a>
+          <a href="#usinas" style="font-size:12.5px;font-weight:500;color:#3A4566" style-hover="color:#0D184D">Usinas</a>
+          <a href="#pl-dividendos" style="font-size:12.5px;font-weight:500;color:#3A4566" style-hover="color:#0D184D">Patrimônio</a>
+          <a href="#como-funciona" style="font-size:12.5px;font-weight:500;color:#3A4566" style-hover="color:#0D184D">Rendimento</a>
+          <a href="#emissao" style="font-size:12.5px;font-weight:500;color:#3A4566" style-hover="color:#0D184D">Projeções</a>
+          <a href="#cronograma" style="font-size:12.5px;font-weight:500;color:#3A4566" style-hover="color:#0D184D">Cronograma</a>
+          <a href="#downloads" style="font-size:12.5px;font-weight:500;color:#3A4566" style-hover="color:#0D184D">Documentos</a>
+        </nav>
+        <a href="https://api.whatsapp.com/send/?phone=5511950297116&amp;text=ENTRAR+NA+COMUNIDADE" target="_blank" rel="noopener" class="m-navbar-cta" style="align-items:center;gap:7px;font-family:Inter,sans-serif;font-weight:600;font-size:13px;letter-spacing:0.01em;padding:10px 18px;border-radius:999px;cursor:pointer;text-decoration:none;background:#2ABD74;color:#fff;box-shadow:0 6px 16px rgba(42,189,116,0.28);line-height:1;white-space:nowrap" style-hover="background:#229E61">{{ waSm }} Saiba mais</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section id="sobre" class="m-hero" style="position: relative; padding-block: clamp(56px,8vw,112px); overflow: hidden; background: #F5F7FC; margin-top: -47px; margin-right: -47px; margin-bottom: -47px; margin-left: -47px">
+    <div id="hero-shader-bg" aria-hidden="true"></div>
+    
+    
+    <div style="position:relative;z-index:1;max-width:1240px;margin:0 auto;padding-inline:24px">
+      <div style="display: flex; flex-direction: column; align-items: center; text-align: center; max-width: 900px; margin: 0 auto; margin-top: -4px; margin-bottom: -68px">
+
+        <div data-reveal="" style="margin-bottom:28px">
+          <img src="assets/snel11-campaign-horizontal.svg" alt="5ª Emissão SNEL11" style="height:72px;width:auto;margin:0 auto">
+        </div>
+
+        <h1 data-reveal="" class="m-hero-h1" style="font-family: 'Roboto Flex',sans-serif; font-weight: 600; font-size: 62px; line-height: 0.97; letter-spacing: -0.03em; color: #0D184D; margin: 0 0 22px; transform-origin: 0 100%; transform: scale(1.0327,1.0468); width: 622px; max-width: 616px"><div style="display: block"><font color="#2362c9" style="text-transform: none; font-size: 63px; height: 276px; width: 433px; max-width: 457px; font-style: normal; color: #2362c9"><span style="color: #f0ac16">SNEL11</span> quer TRIPLICAR de tamanho.</font></div></h1>
+
+        <p data-reveal="" style="font-size: clamp(17px,1.4vw,20px); line-height: 1.55; color: #3A4566; max-width: 57ch; margin: 0 auto 40px">O fundo, que conta com mais de <b>100.000 investidores</b>, busca uma nova fase: <b>ampliar o portfólio de usinas solares</b> e aumentar a capacidade de geração de <b>renda 100% isenta de Imposto de Renda.</b></p>
+
+        <div data-reveal="" class="m-grid-2" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;width:100%;margin-bottom:40px">
+          <div style="background:#fff;border:1px solid #D5DEEC;border-radius:24px;padding:20px 16px 18px;display:flex;flex-direction:column;gap:10px;box-shadow:0 1px 2px rgba(13,24,77,0.04);text-align:left" style-hover="box-shadow:0 4px 12px rgba(13,24,77,0.06);transform:translateY(-2px)">
+            <div style="width:38px;height:38px;border-radius:11px;background:#F5F7FC;color:#2362C9;display:grid;place-items:center">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"></path><path d="M14 7h7v7"></path></svg>
+            </div>
+            <strong style="font-family: 'Roboto Flex',sans-serif; font-weight: 800; font-size: 40px; color: #0D184D; letter-spacing: -0.025em; line-height: 1; display: block">14,96%</strong>
+            <span style="font-size:12.5px;color:#A0ABB9;line-height:1.4">de Dividend Yield anualizado (histórico de abril/2026).</span>
+          </div>
+          <div style="background:#fff;border:1px solid #D5DEEC;border-radius:24px;padding:20px 16px 18px;display:flex;flex-direction:column;gap:10px;box-shadow:0 1px 2px rgba(13,24,77,0.04);text-align:left" style-hover="box-shadow:0 4px 12px rgba(13,24,77,0.06);transform:translateY(-2px)">
+            <div style="width:38px;height:38px;border-radius:11px;background:#F5F7FC;color:#2362C9;display:grid;place-items:center">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+            </div>
+            <strong style="font-family: 'Roboto Flex',sans-serif; font-weight: 800; font-size: 40px; color: #0D184D; letter-spacing: -0.025em; line-height: 1; display: block">100 mil</strong>
+            <span style="font-size:12.5px;color:#A0ABB9;line-height:1.4">cotistas na B3.</span>
+          </div>
+          
+          <div style="background:#fff;border:1px solid #D5DEEC;border-radius:24px;padding:20px 16px 18px;display:flex;flex-direction:column;gap:10px;box-shadow:0 1px 2px rgba(13,24,77,0.04);text-align:left" style-hover="box-shadow:0 4px 12px rgba(13,24,77,0.06);transform:translateY(-2px)">
+            <div style="width:38px;height:38px;border-radius:11px;background:#F5F7FC;color:#2362C9;display:grid;place-items:center">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+            </div>
+            <strong style="font-family: 'Roboto Flex',sans-serif; font-weight: 800; font-size: 40px; color: #0D184D; letter-spacing: -0.025em; line-height: 1; display: block">Isenção IR</strong>
+            <span style="font-size:12.5px;color:#A0ABB9;line-height:1.4">nos dividendos mensais para pessoa física.</span>
+          </div>
+        </div>
+
+        <div data-reveal="" class="m-hero-cta">
+          <a href="https://api.whatsapp.com/send/?phone=5511950297116&amp;text=ENTRAR+NA+COMUNIDADE" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:10px;font-family:Inter,sans-serif;font-weight:600;font-size:17px;padding:20px 36px;border-radius:999px;border:1.5px solid transparent;cursor:pointer;text-decoration:none;background:#2ABD74;color:#fff;box-shadow:0 6px 16px rgba(42,189,116,0.28);line-height:1;white-space:nowrap" style-hover="background:#229E61;transform:translateY(-1px)">{{ wa }} <span class="cta-d">CLIQUE AQUI E ENTRE NA COMUNIDADE</span><span class="cta-m">Entre na comunidade</span></a>
+        </div>
+
+        <div data-reveal="" class="m-hero-trust" style="display: flex; align-items: center; gap: 24px; flex-wrap: wrap; justify-content: center; margin-top: 89px; padding-top: 27px; border-top: 1px solid #E1E8F3; width: 100%; margin-bottom: 1px">
+          <img src="assets/qitech-positive.svg" alt="QI Tech" style="max-height:40px;width:auto">
+          <img src="assets/suno-asset-positive.svg" alt="Suno Asset" style="max-height:40px;width:auto">
+          <img src="assets/anbima-gestao-de-recursos.png" alt="ANBIMA Gestão de Recursos" style="height:52px;width:auto">
+          <img src="assets/anbima-coordenadores-ofertas-publicas.png" alt="ANBIMA Coordenadores" style="height:52px;width:auto">
+          <img src="assets/anbima-ofertas-publicas.png" alt="ANBIMA Ofertas Públicas" style="height:52px;width:auto">
+          <img src="assets/anbima-administracao-fiduciaria.png" alt="ANBIMA Administração Fiduciária" style="height:52px;width:auto">
+        </div>
+        <p data-reveal="" class="m-hero-disc" style="margin-top: 22px; font-size: 11.5px; color: #A0ABB9; text-align: center; max-width: 95ch; line-height: 1.6">
+          Leia o prospecto e o regulamento do Fundo antes de aceitar a oferta, em especial a seção <strong style="color:#3A4566">Fatores de Risco</strong>.
+        </p>
+      </div>
+    <div style="position: absolute; width: 700px; height: 700px; border-radius: 50%; background: radial-gradient(circle,rgba(35,98,201,0.07),transparent 65%); top: -290px; pointer-events: none; z-index: 0; left: 904px"></div></div>
+  <div style="position: absolute; width: 700px; height: 700px; border-radius: 50%; background: radial-gradient(circle,rgba(35,98,201,0.07),transparent 65%); top: 397px; pointer-events: none; z-index: 0; left: -339px"></div></section>
+
+  <!-- COMBUSTÍVEL INVISÍVEL -->
+  <section id="contexto" style="padding-block:clamp(32px,4.5vw,48px);background:#F5F7FC">
+    <div style="max-width: 1249px; margin: 0 auto; padding-inline: 24px; margin-top: 56px; margin-bottom: 56px">
+      <div data-reveal="" style="position: relative">
+        <h2 style="font-family: 'Roboto Flex',sans-serif; font-weight: 600; font-size: clamp(32px,3.4vw,52px); line-height: 1.02; letter-spacing: -0.022em; color: #0D184D; margin: 0 0 24px; text-align: center; text-wrap: balance">O combustível invisível da tecnologia</h2>
+        <p style="font-size: clamp(16px,1.2vw,19px); line-height: 1.55; color: #3A4566; max-width: 72ch; margin: 0 auto; text-align: center">
+          IA, data centers e carros elétricos precisam de um insumo básico para funcionar:&nbsp;<strong style="color: #2362C9; font-weight: 700">ENERGIA</strong>
+        </p>
+      </div>
+      <div data-reveal="">
+        <p style="margin-top:32px;font-size:16px;line-height:1.7;color:#3A4566;max-width:82ch;text-align:center;margin-inline:auto">E no Brasil, para ter benefícios fiscais, essa energia precisa ser 100% renovável.</p>
+        
+      </div>
+      <div data-reveal="" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:24px;margin-top:40px">
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div style="font-family: 'Roboto Flex',sans-serif; font-weight: 700; font-size: 14px; color: #0D184D; line-height: 1.3; text-align: center">Ranking de produtores de energia elétrica do mundo</div>
+          <div style="width:100%;display:flex;justify-content:center">
+            <img class="chart-img" src="assets/brasil-gerador-energia.svg" alt="Ranking de produtores de energia elétrica do mundo — Brasil 6º maior gerador" style="display: block; width: 100%; max-width: 912px; height: auto">
+          </div>
+          <div style="font-size: 11px; color: #A0ABB9; text-align: center">Fonte: Statistical Review of World Energy 2025, ANEEL e BEN 2025. Página 186 do prospecto.</div>
+        </div>
+        
+      </div>
+    </div>
+  </section>
+
+  <!-- HISTÓRICO DE CRESCIMENTO -->
+  <section id="numeros" style="padding-block:clamp(32px,4.5vw,48px)">
+    <div style="max-width: 1240px; margin: 0 auto; padding-inline: 24px">
+      <div data-reveal="">
+        <h2 style="font-family: 'Roboto Flex',sans-serif; font-weight: 600; font-size: clamp(32px,3.4vw,52px); line-height: 1.02; letter-spacing: -0.022em; color: #0D184D; margin: 0 0 16px; text-align: center; text-wrap: balance">Histórico de crescimento do <span style="color:#2362C9">SNEL11</span></h2>
+        <p style="font-size: clamp(16px,1.2vw,19px); line-height: 1.55; color: #3A4566; max-width: 68ch; margin: 0 auto; text-align: center">
+          O crescimento do fundo reflete a maturidade da tese na bolsa.&nbsp;</p><div><br></div><div><div style="text-align: center">Com patrimônio líquido de <b>R$ 889,9 milhões</b> e mais de<b> 100 mil cotistas</b>, o SNEL11 distribuiu <b>R$ 0,10 por cota em abril de 2026.</b></div></div><div><br></div><p></p>
+      </div>
+      <div data-reveal="" style="display:flex;flex-direction:column;gap:12px;margin-top:40px">
+        <div style="width:100%;display:flex;justify-content:center">
+          <img class="chart-cotistas-d chart-img" src="assets/evolucao-cotistas-desktop.svg" alt="Evolução do número de cotistas do SNEL11" style="display: block; width: 100%; max-width: 912px; height: auto">
+          <img class="chart-cotistas-m chart-img" src="assets/evolucao-cotistas-mobile.svg" alt="Evolução do número de cotistas do SNEL11" style="display:none;width:100%;max-width:520px;height:auto">
+        </div>
+        <div style="font-size:11px;color:#A0ABB9;text-align:center">Fonte: Suno. Página 195 do prospecto.</div>
+      </div>
+      <div data-reveal="" style="margin-top:40px;display:flex;justify-content:center">
+        <a href="https://api.whatsapp.com/send/?phone=5511950297116&amp;text=ENTRAR+NA+COMUNIDADE" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:10px;font-family:Inter,sans-serif;font-weight:600;font-size:16px;padding:17px 32px;border-radius:999px;border:1.5px solid transparent;cursor:pointer;text-decoration:none;background:#2ABD74;color:#fff;box-shadow:0 6px 16px rgba(42,189,116,0.28);line-height:1;white-space:nowrap" style-hover="background:#229E61;transform:translateY(-1px)">{{ waMd }} <span class="cta-d">QUERO PARTICIPAR DA 5ª EMISSÃO</span><span class="cta-m">Entre na comunidade</span></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- PERFORMANCE HISTÓRICA -->
+  <section id="performance" style="padding-block: clamp(32px,4.5vw,48px); background-color: #e5e9f6">
+    <div style="max-width: 1240px; margin: 0 auto; padding-inline: 24px">
+      <div data-reveal="">
+        <h2 style="font-family: 'Roboto Flex',sans-serif; font-weight: 600; font-size: clamp(32px,3.4vw,52px); line-height: 1.02; letter-spacing: -0.022em; color: #0D184D; margin: 0 0 16px; text-align: center; text-wrap: balance"><span style="color:#2362C9">Performance histórica</span> desde a criação</h2>
+        <p style="font-size: clamp(16px,1.2vw,19px); line-height: 1.55; color: #3A4566; max-width: 65ch; margin: 0 auto; text-align: center">
+          O comportamento do fundo desde o início das negociações na bolsa demonstra o potencial de geração de valor real frente aos principais índices da economia brasileira.
+        </p>
+      </div>
+      <div data-reveal="" style="margin-top:40px">
+        <div style="width:100%;display:flex;justify-content:center">
+          <img class="chart-cotistas-d chart-img" src="assets/performance-desktop.svg" alt="Performance histórica do SNEL11 vs IFIX, CDI e IPCA" style="display: block; width: 100%; max-width: 912px; height: auto">
+          <img class="chart-cotistas-m chart-img" src="assets/performance-mobile.svg" alt="Performance histórica do SNEL11 vs IFIX, CDI e IPCA" style="display:none;width:100%;max-width:520px;height:auto">
+        </div>
+        <div style="margin-top: 10px; font-size: 11px; color: #A0ABB9; text-align: center">Fonte: Suno e Quantum Finance. Página 196 do prospecto.&nbsp;* Rentabilidade obtida no passado não representa garantia de resultados futuros.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RISCO X RETORNO -->
+  <section id="risco-retorno" style="padding-block:clamp(32px,4.5vw,48px)">
+    <div style="max-width: 1240px; margin: 0 auto; padding-inline: 24px">
+      <div data-reveal="">
+        <h2 style="font-family: 'Roboto Flex',sans-serif; font-weight: 600; font-size: clamp(32px,3.4vw,52px); line-height: 1.02; letter-spacing: -0.022em; color: #0D184D; margin: 0 0 16px; text-align: center; text-wrap: balance"><span style="color:#2362C9">Risco x Retorno:</span> SNEL11 vs Os 10 Maiores FIIs</h2>
+        <p style="font-size:clamp(16px,1.2vw,19px);line-height:1.55;color:#3A4566;max-width:62ch;margin:0 auto;text-align:center">
+          Como o SNEL11 se comporta em comparação aos gigantes tradicionais do mercado imobiliário? O gráfico mostra a relação Risco x Retorno de ter infraestrutura e energia solar na carteira por meio do SNEL11.
+        </p>
+      </div>
+      <div data-reveal="" style="margin-top:40px">
+        <div style="width:100%;display:flex;justify-content:center">
+          <img class="chart-cotistas-d chart-img" src="assets/risco-retorno-desktop.svg" alt="Risco x Retorno — SNEL11 vs 10 maiores FIIs" style="display: block; width: 100%; max-width: 912px; height: auto">
+          <img class="chart-cotistas-m chart-img" src="assets/risco-retorno-mobile.svg" alt="Risco x Retorno — SNEL11 vs 10 maiores FIIs" style="display:none;width:100%;max-width:520px;height:auto">
+        </div>
+        <div style="margin-top: 10px; font-size: 11px; color: #A0ABB9; text-align: center">Fonte: Suno e Quantum Finance. Página 194 do prospecto.&nbsp;</div>
+      </div>
+      <div data-reveal="" style="margin-top:40px;display:flex;justify-content:center">
+        <a href="https://api.whatsapp.com/send/?phone=5511950297116&amp;text=ENTRAR+NA+COMUNIDADE" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:10px;font-family:Inter,sans-serif;font-weight:600;font-size:16px;padding:17px 32px;border-radius:999px;border:1.5px solid transparent;cursor:pointer;text-decoration:none;background:#2ABD74;color:#fff;box-shadow:0 6px 16px rgba(42,189,116,0.28);line-height:1;white-space:nowrap" style-hover="background:#229E61;transform:translateY(-1px)">{{ waMd }} <span class="cta-d">QUERO PARTICIPAR DA 5ª EMISSÃO</span><span class="cta-m">Entre na comunidade</span></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONHEÇA AS USINAS -->
+  <section id="usinas" style="padding-block:clamp(32px,4.5vw,48px);background:#F5F7FC">
+    <div style="max-width: 1240px; margin: 0 auto; padding-inline: 24px">
+      <div data-reveal="">
+        <h2 style="font-family: 'Roboto Flex',sans-serif; font-weight: 600; font-size: clamp(32px,3.4vw,52px); line-height: 1.02; letter-spacing: -0.022em; color: #0D184D; margin: 0 0 16px; text-align: center; text-wrap: balance">Conheça as usinas do <span style="color:#2362C9">SNEL11.</span></h2>
+        <p style="font-size:clamp(16px,1.2vw,19px);line-height:1.55;color:#3A4566;max-width:62ch;margin:0 auto;text-align:center">
+          Hoje já são <strong style="color:#0D184D">42 usinas solares comerciais</strong> operando em <strong style="color:#0D184D">11 estados brasileiros</strong>. A capacidade instalada atual é de <strong style="color:#0D184D">149,4 MWp</strong>, com contratos de locação de longo prazo vencendo, em média, lá em <strong style="color:#0D184D">2037</strong>.
+        </p>
+      </div>
+      <div data-reveal="" style="margin-top:40px">
+        <div style="position:relative">
+          <div style="overflow:hidden;border-radius:24px;margin:0 -10px">
+            <div class="m-usina-track" style="display:flex;--per:3;--uidx:{{ usinaIdx }};transition:{{ usinaTransition }};transform:translateX(calc(var(--uidx) * -100% / var(--per)))">
+              <sc-for list="{{ usinaSlides }}" as="s" hint-placeholder-count="0">
+                <div style="flex:0 0 calc(100% / var(--per));box-sizing:border-box;padding:0 10px">
+                  <div style="position:relative;border-radius:24px;overflow:hidden;aspect-ratio:16/9;box-shadow:0 1px 2px rgba(13,24,77,0.06);background:#E1E8F3">
+                    <img src="{{ s.src }}" alt="{{ s.title }}" style="display:block;width:100%;height:100%;object-fit:cover">
+                    <div style="position:absolute;left:0;right:0;bottom:0;padding:38px 18px 14px;background:linear-gradient(to top,rgba(13,24,77,0.72),transparent)">
+                      <div style="font-family:'Roboto Flex',sans-serif;font-weight:600;font-size:15px;color:#fff;letter-spacing:-0.01em">{{ s.title }}</div>
+                    </div>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+          <button onClick="{{ prevUsina }}" aria-label="Foto anterior" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);width:44px;height:44px;border-radius:999px;background:#fff;border:1px solid #E1E8F3;box-shadow:0 4px 14px rgba(13,24,77,0.12);display:grid;place-items:center;cursor:pointer;color:#0D184D;z-index:2;padding:0" style-hover="box-shadow:0 6px 18px rgba(13,24,77,0.18)">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"></path></svg>
+          </button>
+          <button onClick="{{ nextUsina }}" aria-label="Próxima foto" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);width:44px;height:44px;border-radius:999px;background:#fff;border:1px solid #E1E8F3;box-shadow:0 4px 14px rgba(13,24,77,0.12);display:grid;place-items:center;cursor:pointer;color:#0D184D;z-index:2;padding:0" style-hover="box-shadow:0 6px 18px rgba(13,24,77,0.18)">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"></path></svg>
+          </button>
+        </div>
+        <div style="display:flex;justify-content:center;gap:8px;margin-top:18px">
+          <sc-for list="{{ usinaDots }}" as="dot" hint-placeholder-count="4">
+            <button onClick="{{ dot.go }}" aria-label="Ir para foto" style="height:8px;width:{{ dot.w }};border-radius:999px;border:none;padding:0;cursor:pointer;background:{{ dot.bg }};transition:all 220ms cubic-bezier(0.2,0.7,0.2,1)"></button>
+          </sc-for>
+        </div>
+      </div>
+      
+    </div>
+  </section>
+
+  <!-- PL E DIVIDENDOS -->
+  <section id="pl-dividendos" style="padding-block: clamp(32px,4.5vw,48px); background-color: #e5e9f6">
+    <div style="max-width: 1240px; margin: 0 auto; padding-inline: 24px">
+      <div data-reveal="">
+        <h2 style="font-family: 'Roboto Flex',sans-serif; font-weight: 600; font-size: clamp(32px,3.4vw,52px); line-height: 1.02; letter-spacing: -0.022em; color: #0D184D; margin: 0 0 16px; text-align: center; text-wrap: balance">Patrimônio e dividendos<br><span style="color:#2362C9">crescendo juntos.</span></h2>
+        <p style="font-size:clamp(16px,1.2vw,19px);line-height:1.55;color:#3A4566;max-width:62ch;margin:0 auto;text-align:center">
+          O SNEL11 não escolhe entre crescer e distribuir. Desde o início, o fundo amplia seu patrimônio líquido ao mesmo tempo em que mantém distribuições mensais consistentes aos cotistas.
+        </p>
+      </div>
+      <div data-reveal="" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:24px;margin-top:40px">
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div style="font-family: 'Roboto Flex',sans-serif; font-weight: 700; font-size: 14px; color: #0D184D; line-height: 1.3; text-align: center">Crescimento do Patrimônio Líquido</div>
+          <div style="width:100%;display:flex;justify-content:center">
+            <img class="chart-cotistas-d chart-img" src="assets/patrimonio-desktop.svg" alt="Evolução do Patrimônio Líquido do SNEL11" style="display:block;width:100%;max-width:640px;height:auto">
+            <img class="chart-cotistas-m chart-img" src="assets/patrimonio-mobile.svg" alt="Evolução do Patrimônio Líquido do SNEL11" style="display:none;width:100%;max-width:480px;height:auto">
+          </div>
+          <div style="font-size:11px;color:#A0ABB9">Fonte: Suno. Página 195 do prospecto. * Os dados de evolução do Patrimônio Líquido e do número de cotistas são históricos e não representam garantia de crescimento futuro. O Patrimônio Líquido do Fundo pode variar em função do desempenho dos ativos, do volume de distribuições e das condições de mercado.&nbsp;</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div style="font-family: 'Roboto Flex',sans-serif; font-weight: 700; font-size: 14px; color: #0D184D; line-height: 1.3; text-align: center">Histórico de Distribuição de Dividendos</div>
+          <div style="width:100%;display:flex;justify-content:center">
+            <img class="chart-img" src="assets/rendimentos-cota-mercado.svg" alt="Rendimentos x Cota de Mercado do SNEL11" style="display:block;width:100%;max-width:640px;height:auto">
+          </div>
+          <div style="font-size:11px;color:#A0ABB9">Fonte: Suno e Quantum Finance. Página 194 do prospecto. * Rentabilidade obtida no passado não representa garantia de resultados futuros. O Dividend Yield - DY anualizado divulgado reflete o desempenho passado do Fundo com base nas distribuições realizadas e no preço de fechamento da cota na data de referência. Tal indicador não constitui promessa ou garantia de rendimentos futuros. Os rendimentos efetivos poderão ser superiores ou inferiores dependendo do desempenho dos ativos do Fundo</div>
+        </div>
+      </div>
+      <div data-reveal="" style="margin-top:40px;display:flex;justify-content:center">
+        <a href="https://api.whatsapp.com/send/?phone=5511950297116&amp;text=ENTRAR+NA+COMUNIDADE" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:10px;font-family:Inter,sans-serif;font-weight:600;font-size:16px;padding:17px 32px;border-radius:999px;border:1.5px solid transparent;cursor:pointer;text-decoration:none;background:#2ABD74;color:#fff;box-shadow:0 6px 16px rgba(42,189,116,0.28);line-height:1;white-space:nowrap" style-hover="background:#229E61;transform:translateY(-1px)">{{ waMd }} <span class="cta-d">QUERO PARTICIPAR DA 5ª EMISSÃO</span><span class="cta-m">Entre na comunidade</span></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- COMO FUNCIONA -->
+  <section id="como-funciona" style="padding-block:clamp(32px,4.5vw,48px);background:#F5F7FC">
+    <div style="max-width: 1240px; margin: 0 auto; padding-inline: 24px">
+      <div data-reveal="">
+        <h2 style="font-family: 'Roboto Flex',sans-serif; font-weight: 600; font-size: clamp(32px,3.4vw,52px); line-height: 1.02; letter-spacing: -0.022em; color: #0D184D; margin: 0 0 16px; text-align: center; text-wrap: balance">Como funciona o rendimento<br>do <span style="color:#2362C9">SNEL11.</span></h2>
+        <p style="font-size:clamp(16px,1.2vw,19px);line-height:1.55;color:#3A4566;max-width:62ch;margin:0 auto;text-align:center">
+          Do aporte do investidor ao depósito mensal na conta: quatro etapas simples que compõem o ciclo de geração de renda do fundo.
+        </p>
+      </div>
+      <div data-reveal="" style="position:relative;margin-top:48px">
+      <div ref="{{ comoRef }}" class="m-como-track" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px">
+        <div style="display:flex;flex-direction:column;align-items:center;text-align:center;padding:32px 24px;background:#fff;border:1px solid #E1E8F3;border-radius:24px;box-shadow:0 1px 2px rgba(13,24,77,0.04)">
+          <div style="width:60px;height:60px;border-radius:16px;display:grid;place-items:center;flex-shrink:0;margin-bottom:20px;background:#0D184D;color:#fff">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="9" r="6"></circle><circle cx="15" cy="15" r="6"></circle></svg>
+          </div>
+          <div style="font-family:'Roboto Flex',sans-serif;font-weight:700;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#2362C9;margin-bottom:8px">Etapa 01</div>
+          <h4 style="font-family:'Roboto Flex',sans-serif;font-weight:700;font-size:17px;color:#0D184D;margin:0 0 8px;letter-spacing:-0.01em;line-height:1.25">Captação e Construção</h4>
+          <p style="font-size:13.5px;color:#3A4566;line-height:1.6;margin:0">O SNEL11 capta recursos na bolsa e investe no desenvolvimento de usinas fotovoltaicas comerciais de alta performance.</p>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;text-align:center;padding:32px 24px;background:#fff;border:1px solid #E1E8F3;border-radius:24px;box-shadow:0 1px 2px rgba(13,24,77,0.04)">
+          <div style="width:60px;height:60px;border-radius:16px;display:grid;place-items:center;flex-shrink:0;margin-bottom:20px;background:#FABE1E;color:#0D184D">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path></svg>
+          </div>
+          <div style="font-family:'Roboto Flex',sans-serif;font-weight:700;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#2362C9;margin-bottom:8px">Etapa 02</div>
+          <h4 style="font-family:'Roboto Flex',sans-serif;font-weight:700;font-size:17px;color:#0D184D;margin:0 0 8px;letter-spacing:-0.01em;line-height:1.25">Arrendamento de Longo Prazo</h4>
+          <p style="font-size:13.5px;color:#3A4566;line-height:1.6;margin:0">As usinas prontas são locadas para grandes empresas consumidoras de energia através de contratos estendidos (vencimento médio estimado para 2037).</p>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;text-align:center;padding:32px 24px;background:#fff;border:1px solid #E1E8F3;border-radius:24px;box-shadow:0 1px 2px rgba(13,24,77,0.04)">
+          <div style="width:60px;height:60px;border-radius:16px;display:grid;place-items:center;flex-shrink:0;margin-bottom:20px;background:#2362C9;color:#fff">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4.5 13.5h6L11 22l8.5-11.5h-6L13 2z"></path></svg>
+          </div>
+          <div style="font-family:'Roboto Flex',sans-serif;font-weight:700;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#2362C9;margin-bottom:8px">Etapa 03</div>
+          <h4 style="font-family:'Roboto Flex',sans-serif;font-weight:700;font-size:17px;color:#0D184D;margin:0 0 8px;letter-spacing:-0.01em;line-height:1.25">Geração de Receita</h4>
+          <p style="font-size:13.5px;color:#3A4566;line-height:1.6;margin:0">Os locatários pagam pelo uso das usinas, gerando um fluxo de caixa previsto por contratos de longo prazo (de 10 a 15 anos).</p>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;text-align:center;padding:32px 24px;background:#fff;border:1px solid #E1E8F3;border-radius:24px;box-shadow:0 1px 2px rgba(13,24,77,0.04)">
+          <div style="width:60px;height:60px;border-radius:16px;display:grid;place-items:center;flex-shrink:0;margin-bottom:20px;background:#1FA971;color:#fff">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"></path><path d="M14 7h7v7"></path></svg>
+          </div>
+          <div style="font-family:'Roboto Flex',sans-serif;font-weight:700;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#2362C9;margin-bottom:8px">Etapa 04</div>
+          <h4 style="font-family:'Roboto Flex',sans-serif;font-weight:700;font-size:17px;color:#0D184D;margin:0 0 8px;letter-spacing:-0.01em;line-height:1.25">Distribuição Isenta</h4>
+          <p style="font-size:13.5px;color:#3A4566;line-height:1.6;margin:0">O resultado líquido dessa operação é repassado mensalmente direto para a conta dos cotistas na corretora, com isenção total de IR para pessoa física.</p>
+        </div>
+      </div>
+        <button class="m-como-arrow" onClick="{{ comoPrev }}" aria-label="Card anterior" style="position:absolute;left:-6px;top:50%;transform:translateY(-50%);width:42px;height:42px;border-radius:999px;background:#fff;border:1px solid #E1E8F3;box-shadow:0 4px 14px rgba(13,24,77,0.12);place-items:center;cursor:pointer;color:#0D184D;z-index:2;padding:0">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"></path></svg>
+        </button>
+        <button class="m-como-arrow" onClick="{{ comoNext }}" aria-label="Próximo card" style="position:absolute;right:-6px;top:50%;transform:translateY(-50%);width:42px;height:42px;border-radius:999px;background:#fff;border:1px solid #E1E8F3;box-shadow:0 4px 14px rgba(13,24,77,0.12);place-items:center;cursor:pointer;color:#0D184D;z-index:2;padding:0">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"></path></svg>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ALOCAÇÃO DA 5ª EMISSÃO -->
+  <section id="emissao" style="padding-block:clamp(32px,4.5vw,48px)">
+    <div style="max-width: 1240px; margin: 0 auto; padding-inline: 24px">
+      <div data-reveal="">
+        <h2 style="font-family: 'Roboto Flex',sans-serif; font-weight: 600; font-size: clamp(32px,3.4vw,52px); line-height: 1.02; letter-spacing: -0.022em; color: #0D184D; margin: 0 0 16px; text-align: center; text-wrap: balance">O próximo passo:<br>alocação da <span style="color:#2362C9">5ª Emissão.</span></h2>
+        <p style="font-size:clamp(16px,1.2vw,19px);line-height:1.55;color:#3A4566;max-width:62ch;margin:0 auto;text-align:center">
+          Os novos recursos captados nesta Oferta Pública serão usados diretamente para tirar do papel os novos projetos mapeados pela equipe de gestão, trazendo mais <b>escala e diversificação para a carteira.
+        </b></p>
+      </div>
+      <div data-reveal="" class="m-aloc-box" style="background:#fff;border-radius:32px;padding:clamp(28px,4vw,56px);box-shadow:0 1px 2px rgba(13,24,77,0.04);border:1px solid #E1E8F3;margin-top:40px">
+        <div class="m-aloc-desktop">
+        <div class="m-aloc-head" style="display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:24px;padding-bottom:18px;border-bottom:1px solid #E1E8F3">
+          <div class="m-aloc-metric" style="font-size:12px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#A0ABB9;align-self:end">Métrica</div>
+          <div>
+            <div style="font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#A0ABB9;margin-bottom:4px">SNEL11 hoje</div>
+            <div style="font-family:'Roboto Flex',sans-serif;font-weight:700;color:#0D184D;font-size:20px">Atual</div>
+          </div>
+          <div>
+            <div style="font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#2362C9;margin-bottom:4px">SNEL11 após a 5ª Emissão</div>
+            <div style="font-family:'Roboto Flex',sans-serif;font-weight:800;color:#2362C9;font-size:20px">Pós Oferta</div>
+          </div>
+        </div>
+        <sc-for list="{{ alocacaoRows }}" as="r" hint-placeholder-count="4">
+          <div class="m-aloc-row" style="display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:24px;padding:24px 0;border-bottom:1px solid #E1E8F3;align-items:center">
+            <div class="m-aloc-metric" style="display:flex;flex-direction:column;gap:4px">
+              <div style="font-family:'Roboto Flex',sans-serif;font-weight:700;color:#0D184D;font-size:17px">{{ r.metric }}</div>
+              <div style="font-size:13px;color:#A0ABB9;line-height:1.4">{{ r.help }}</div>
+            </div>
+            <div class="m-aloc-val" style="font-family: 'Roboto Flex',sans-serif; font-weight: 800; font-size: 25px; letter-spacing: -0.02em; line-height: 1; color: #A0ABB9">{{ r.now }}</div>
+            <div class="m-aloc-val" style="font-family: 'Roboto Flex',sans-serif; font-weight: 800; font-size: 25px; letter-spacing: -0.02em; line-height: 1; color: #0D184D; display: flex; align-items: baseline; gap: 6px">{{ r.after }}<span style="font-size:12px;color:#FE8E23;font-weight:600;margin-left:4px">↑ {{ r.delta }}</span></div>
+          </div>
+        </sc-for>
+        </div>
+        <div class="m-aloc-mobile" style="position:relative">
+          <div ref="{{ alocRef }}" class="m-aloc-track" style="display:flex;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scroll-behavior:smooth;gap:14px;scrollbar-width:none">
+            <sc-for list="{{ alocacaoRows }}" as="r" hint-placeholder-count="4">
+              <div style="flex:0 0 100%;box-sizing:border-box;scroll-snap-align:center;background:#fff;border:1px solid #E1E8F3;border-radius:24px;padding:36px 28px;box-shadow:0 1px 2px rgba(13,24,77,0.04);display:flex;flex-direction:column;align-items:center;text-align:center;gap:0">
+                <div style="font-family:'Roboto Flex',sans-serif;font-weight:700;color:#0D184D;font-size:23px;letter-spacing:-0.01em">{{ r.metric }}</div>
+                <div style="font-size:15px;color:#A0ABB9;line-height:1.45;margin-top:8px;max-width:30ch">{{ r.help }}</div>
+                <div style="width:100%;height:1px;background:#E1E8F3;margin:24px 0"></div>
+                <div style="font-size:12px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#A0ABB9">SNEL11 hoje</div>
+                <div style="font-family:'Roboto Flex',sans-serif;font-weight:800;font-size:clamp(26px,8.2vw,42px);white-space:nowrap;letter-spacing:-0.02em;line-height:1;color:#A0ABB9;margin-top:10px">{{ r.now }}</div>
+                <div style="font-size:12px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#2362C9;margin-top:28px">Após a 5ª Emissão</div>
+                <div style="font-family:'Roboto Flex',sans-serif;font-weight:800;font-size:clamp(26px,8.2vw,42px);white-space:nowrap;letter-spacing:-0.02em;line-height:1;color:#0D184D;margin-top:10px;display:flex;flex-direction:column;align-items:center;gap:8px">{{ r.after }}<span style="font-size:18px;color:#FE8E23;font-weight:700;white-space:nowrap">↑ {{ r.delta }}</span></div>
+              </div>
+            </sc-for>
+          </div>
+          <button class="m-aloc-arrow" onClick="{{ alocPrev }}" aria-label="Anterior" style="position:absolute;left:-6px;top:50%;transform:translateY(-50%);width:40px;height:40px;border-radius:999px;background:#fff;border:1px solid #E1E8F3;box-shadow:0 4px 14px rgba(13,24,77,0.12);display:grid;place-items:center;cursor:pointer;color:#0D184D;z-index:2;padding:0">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"></path></svg>
+          </button>
+          <button class="m-aloc-arrow" onClick="{{ alocNext }}" aria-label="Próximo" style="position:absolute;right:-6px;top:50%;transform:translateY(-50%);width:40px;height:40px;border-radius:999px;background:#fff;border:1px solid #E1E8F3;box-shadow:0 4px 14px rgba(13,24,77,0.12);display:grid;place-items:center;cursor:pointer;color:#0D184D;z-index:2;padding:0">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"></path></svg>
+          </button>
+        </div>
+        <p class="m-aloc-disc" style="font-size:13px;color:#A0ABB9;line-height:1.5;margin:16px 0 0;text-align:center">Página 197 do Prospecto. Projeções baseadas no cenário-base do estudo de viabilidade. Resultados reais podem divergir significativamente.</p>
+      </div>
+      <div data-reveal="" style="margin-top:40px;display:flex;justify-content:center">
+        <a href="https://api.whatsapp.com/send/?phone=5511950297116&amp;text=ENTRAR+NA+COMUNIDADE" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:10px;font-family:Inter,sans-serif;font-weight:600;font-size:16px;padding:17px 32px;border-radius:999px;border:1.5px solid transparent;cursor:pointer;text-decoration:none;background:#2ABD74;color:#fff;box-shadow:0 6px 16px rgba(42,189,116,0.28);line-height:1;white-space:nowrap" style-hover="background:#229E61;transform:translateY(-1px)">{{ waMd }} <span class="cta-d">QUERO PARTICIPAR DA 5ª EMISSÃO</span><span class="cta-m">Entre na comunidade</span></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- DETALHES TÉCNICOS -->
+  <section id="detalhes" style="padding-block:clamp(32px,4.5vw,48px);background:#F5F7FC">
+    <div style="max-width: 1240px; margin: 0 auto; padding-inline: 24px">
+      <div data-reveal="">
+        <h2 style="font-family: 'Roboto Flex',sans-serif; font-weight: 600; font-size: clamp(32px,3.4vw,52px); line-height: 1.02; letter-spacing: -0.022em; color: #0D184D; margin: 0 0 16px; text-align: center; text-wrap: balance">Detalhes técnicos da <span style="color: rgb(35, 98, 201);">5ª Emissão.</span></h2>
+        <p style="font-size:clamp(16px,1.2vw,19px);line-height:1.55;color:#3A4566;max-width:62ch;margin:0 auto;text-align:center">
+          Informações estruturais da oferta para embasar sua decisão de investimento.
+        </p>
+      </div>
+      <div data-reveal="" class="m-detalhes-grid" style="display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 24px; margin-top: 40px">
+        <sc-for list="{{ detalhes }}" as="d" hint-placeholder-count="3">
+          <div style="background: #fff; border: 1px solid #D5DEEC; border-left: 4px solid #2362C9; border-radius: 24px; padding: 32px 28px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 1px 2px rgba(13,24,77,0.04)" style-hover="box-shadow:0 4px 12px rgba(13,24,77,0.06);transform:translateY(-2px)">
+            <div style="font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#A0ABB9">{{ d.label }}</div>
+            <div style="font-family:'Roboto Flex',sans-serif;font-weight:800;font-size:clamp(34px,3vw,44px);color:#0D184D;letter-spacing:-0.02em;line-height:1.05">{{ d.value }}</div>
+            <div style="font-size:13.5px;color:#3A4566;line-height:1.55">{{ d.note }}</div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </section>
+
+  <!-- CRONOGRAMA -->
+  <section id="cronograma" style="padding-block:clamp(32px,4.5vw,48px)">
+    <div style="max-width: 1089px; margin: 0 auto; padding-inline: 24px">
+      <div data-reveal="" style="margin-bottom:40px;text-align:center">
+        <h2 style="font-family:'Roboto Flex',sans-serif;font-weight:600;font-size:clamp(32px,3.4vw,52px);line-height:1.02;letter-spacing:-0.022em;color:#0D184D;margin:0 0 16px;text-wrap:balance">Cronograma da <span style="color:#2362C9">5ª Emissão.</span></h2>
+        <p style="font-size:clamp(16px,1.2vw,19px);line-height:1.55;color:#3A4566;max-width:62ch;margin:0 auto">Acompanhe as datas-chave e não deixe a janela de reserva fechar sem você.</p>
+      </div>
+      <div data-reveal="" style="position:relative;padding-left:40px">
+        <div style="position:absolute;left:30px;top:12px;bottom:12px;width:2px;background:#E1E8F3"></div>
+        <div class="m-crono-row" style="position:relative;padding:20px 0 20px 32px;display:grid;grid-template-columns:200px 1fr;gap:32px;align-items:start">
+          <div style="position:absolute;left:-17px;top:26px;width:14px;height:14px;border-radius:999px;background:#FABE1E;border:3px solid #FE8E23;box-shadow:0 0 0 6px rgba(250,190,30,0.18);z-index:1"></div>
+          <div style="font-family:'Roboto Flex',sans-serif;font-weight:700;font-size:16px;color:#0D184D;display:flex;align-items:center;gap:10px;flex-wrap:wrap">16 jun 2026 <span style="font-size:10px;letter-spacing:0.08em;text-transform:uppercase;font-weight:700;padding:4px 10px;border-radius:999px;background:#FABE1E;color:#0D184D">Abertura</span></div>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <div style="font-family:'Roboto Flex',sans-serif;font-weight:700;font-size:19px;color:#0D184D;letter-spacing:-0.01em">Divulgação do Fato Relevante, Prospecto e Anúncio de Início</div>
+            <div style="font-size:14px;color:#3A4566;line-height:1.55">Publicação dos documentos oficiais da oferta pública. A partir desta data os investidores podem consultar o Prospecto Definitivo e a Lâmina da 5ª Emissão.</div>
+          </div>
+        </div>
+        <sc-for list="{{ restCrono }}" as="c" hint-placeholder-count="7">
+          <div class="m-crono-row" style="position:relative;padding:20px 0 20px 32px;display:grid;grid-template-columns:200px 1fr;gap:32px;align-items:start">
+            <div style="position:absolute;left:-17px;top:26px;width:14px;height:14px;border-radius:999px;background:#fff;border:3px solid #2362C9;z-index:1"></div>
+            <div style="font-family:'Roboto Flex',sans-serif;font-weight:700;font-size:16px;color:#0D184D;display:flex;align-items:center;gap:10px;flex-wrap:wrap">{{ c.date }} <span style="font-size:10px;letter-spacing:0.08em;text-transform:uppercase;font-weight:700;padding:4px 10px;border-radius:999px;background:#F5F7FC;color:#2362C9">{{ c.tag }}</span></div>
+            <div style="display:flex;flex-direction:column;gap:6px">
+              <div style="font-family:'Roboto Flex',sans-serif;font-weight:700;font-size:19px;color:#0D184D;letter-spacing:-0.01em">{{ c.title }}</div>
+              <div style="font-size:14px;color:#3A4566;line-height:1.55">{{ c.desc }}</div>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </section>
+
+  <!-- FINAL CTA -->
+  <section id="comunidade" style="background:#0D184D;color:#fff;text-align:center;position:relative;overflow:hidden">
+    <div style="position: absolute; width: 480px; height: 480px; border-radius: 999px; background: radial-gradient(circle,rgba(96,156,252,0.32),transparent 70%); top: -119px; pointer-events: none; left: 1243px"></div>
+    <div style="position: absolute; width: 360px; height: 360px; border-radius: 999px; background: radial-gradient(circle,rgba(250,190,30,0.28),transparent 70%); left: -114px; pointer-events: none; top: 310px"></div>
+    <div style="position:relative;z-index:2;padding-block:clamp(64px,8vw,120px);max-width:920px;margin:0 auto;padding-inline:24px">
+      <h2 data-reveal="" style="font-family: 'Roboto Flex',sans-serif; font-weight: 600; font-size: clamp(40px,5.4vw,80px); line-height: 0.98; letter-spacing: -0.03em; margin: 0 0 18px; color: #fff; text-wrap: balance">A janela da 5ª Emissão<br><span style="color:#FABE1E">tem data de encerramento.</span></h2>
+      <p data-reveal="" style="font-size:clamp(16px,1.3vw,19px);color:rgba(255,255,255,0.7);margin:0 auto 32px;max-width:56ch;line-height:1.55">Consulte seu assessor de investimentos, leia os documentos oficiais da oferta e faça sua reserva antes que o período se encerre.</p>
+      <div data-reveal="" style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap">
+        <a href="https://api.whatsapp.com/send/?phone=5511950297116&amp;text=ENTRAR+NA+COMUNIDADE" target="_blank" rel="noreferrer" style="display:inline-flex;align-items:center;gap:10px;font-family:Inter,sans-serif;font-weight:600;font-size:17px;padding:20px 36px;border-radius:999px;border:1.5px solid transparent;cursor:pointer;text-decoration:none;background:#2ABD74;color:#fff;box-shadow:0 6px 16px rgba(42,189,116,0.28);line-height:1;white-space:nowrap" style-hover="background:#229E61;transform:translateY(-1px)">{{ wa }} <span class="cta-d">ENTRE NA COMUNIDADE SNEL11</span><span class="cta-m">Entre na comunidade</span></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- DOWNLOADS DA OFERTA -->
+  <section id="downloads" style="padding-block:clamp(32px,4.5vw,48px)">
+    <div style="max-width: 1240px; margin: 0 auto; padding-inline: 24px">
+      <div data-reveal="" class="m-dl-card" style="background:#fff;border:1px solid #E1E8F3;border-radius:32px;padding:clamp(28px,3.5vw,52px);display:grid;grid-template-columns:1.5fr 1fr;gap:clamp(24px,3vw,48px);align-items:center">
+        <div class="m-dl-intro">
+          <h2 style="font-family:'Roboto Flex',sans-serif;font-weight:600;font-size:clamp(28px,2.6vw,38px);line-height:1.05;letter-spacing:-0.022em;color:#0D184D;margin:0 0 14px;text-wrap:balance">Baixe e leia antes de participar.</h2>
+          <p style="font-size:clamp(14px,1.05vw,16px);line-height:1.6;color:#A0ABB9;margin:0;max-width:42ch">Os materiais obrigatórios da 5ª Emissão estão disponíveis para download. Leitura recomendada antes de qualquer decisão.</p>
+        </div>
+        <sc-for list="{{ downloads }}" as="d" hint-placeholder-count="2">
+          <a href="{{ d.href }}" target="_blank" rel="noreferrer" style="display:flex;align-items:center;gap:16px;background:#F5F7FC;border:1px solid #E1E8F3;border-radius:20px;padding:20px 22px;text-decoration:none;transition:box-shadow 220ms cubic-bezier(0.2,0.7,0.2,1),transform 220ms cubic-bezier(0.2,0.7,0.2,1)" style-hover="box-shadow:0 8px 24px rgba(13,24,77,0.10);transform:translateY(-2px)">
+            <span style="flex-shrink:0;display:grid;place-items:center;width:46px;height:46px;border-radius:14px;background:#fff;border:1px solid #E1E8F3;color:#2362C9">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><path d="M7 10l5 5 5-5"></path><path d="M12 15V3"></path></svg>
+            </span>
+            <span style="display:flex;flex-direction:column;gap:3px;min-width:0">
+              <span style="font-family:'Roboto Flex',sans-serif;font-weight:700;font-size:16px;color:#0D184D;letter-spacing:-0.01em">{{ d.title }}</span>
+              <span style="font-size:12px;font-weight:500;letter-spacing:0.04em;color:#A0ABB9">{{ d.meta }}</span>
+            </span>
+          </a>
+        </sc-for>
+      </div>
+    </div>
+  </section>
+
+  <!-- RISCO + DISCLAIMER -->
+  <section style="padding-block:48px;background:#F5F7FC;border-top:1px solid #E1E8F3">
+    <div style="max-width: 1240px; margin: 0 auto; padding-inline: 24px">
+      <div class="m-risk-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:56px;align-items:start">
+        <div>
+          <div style="font-size:10.5px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#A0ABB9;margin:0 0 14px;display:flex;align-items:center;gap:6px">
+            <span style="display:inline-grid;place-items:center;width:15px;height:15px;border-radius:50%;background:#A0ABB9;color:#fff;font-size:8px;font-weight:800;flex-shrink:0">!</span>
+            Fatores de Risco — Leia antes de investir
+          </div>
+          <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px">
+            <sc-for list="{{ risks }}" as="rk" hint-placeholder-count="5">
+              <li style="display:flex;gap:8px;font-size:12.5px;line-height:1.55;color:#3A4566">
+                <span style="flex-shrink:0;color:#A0ABB9;font-size:11px;padding-top:1px;width:20px">({{ rk.num }})</span>
+                <div><strong style="color:#0D184D;font-weight:600">{{ rk.title }}</strong> — {{ rk.desc }}</div>
+              </li>
+            </sc-for>
+          </ul>
+        </div>
+        <div>
+          <div style="font-size:10.5px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#A0ABB9;margin:0 0 14px">Disclaimer obrigatório</div>
+          <p style="font-size: 11px; line-height: 1.65; color: #A0ABB9; margin: 0; overflow-wrap: anywhere; text-align: justify">
+            <strong style="color:#3A4566;font-weight:600">LEIA O PROSPECTO E O REGULAMENTO DO FUNDO ANTES DE ACEITAR A OFERTA</strong>, em especial a seção dos Fatores de Risco. Entre em contato com o seu assessor de investimentos e avalie a adequação do investimento ao seu perfil. Os fundos de investimento não contam com garantia do administrador do fundo, do gestor da carteira, de qualquer mecanismo de seguro ou do Fundo Garantidor de Crédito (FGC). A seguir seguem listados os 5 principais fatores de risco da Oferta e do Fundo: (i) Risco de não concretização da Oferta, (ii) Risco do Estudo de Viabilidade, (iii) Risco de não Materialização das Perspectivas Contidas nos Documentos da Oferta, (iv) Acontecimentos e a percepção de riscos em outros países, sobretudo em países de economia emergente e nos Estados Unidos, podem prejudicar o preço de mercado dos valores mobiliários brasileiros, inclusive o preço de mercado das Cotas e (v) Risco da Distribuição Parcial. O Prospecto está disponível na seguinte página: <a href="https://www.suno.com.br/asset/fundos/snel11/" target="_blank" rel="noreferrer" style="color:#A0ABB9;text-decoration:underline;text-underline-offset:2px">suno.com.br/asset/fundos/snel11/</a> (Para acessar o documento, neste website acessar o botão "Relat. em destaque"). O REGISTRO DA OFERTA NÃO IMPLICA, POR PARTE DA CVM, EM GARANTIA DE VERACIDADE DAS INFORMAÇÕES PRESTADAS OU EM JULGAMENTO SOBRE A QUALIDADE DO FUNDO OU DAS COTAS A SEREM DISTRIBUÍDAS. A RENTABILIDADE PASSADA NÃO REPRESENTA GARANTIA DE RENTABILIDADE FUTURA. Saiba mais em <a href="https://www.suno.com.br/asset/fundos/snel11/" target="_blank" rel="noreferrer" style="color:#A0ABB9;text-decoration:underline;text-underline-offset:2px">suno.com.br/asset/fundos/snel11/</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer style="background:#0D184D;color:rgba(255,255,255,0.6);padding-block:48px 32px">
+    <div style="max-width:1360px;margin:0 auto;padding-inline:24px">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:40px;margin-bottom:40px">
+        
+        
+        
+      </div>
+
+      
+
+      <div class="m-footer-bottom" style="display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:center;margin-bottom:40px;padding-bottom:40px;border-bottom:1px solid rgba(255,255,255,0.08)">
+        <div style="display: flex; align-items: center; gap: 17px; flex-wrap: wrap; justify-content: flex-start">
+          <img src="assets/snel-logo-white.svg" alt="SNEL11" style="max-height: 22px; width: 104px; height: 24px">
+          <div style="width:1px;height:28px;background:rgba(255,255,255,0.18)"></div>
+          <img src="assets/suno-asset-negative.svg" alt="Suno Asset · Gestora" style="max-height: 28px; width: 67px; height: 36px">
+          <div style="width:1px;height:28px;background:rgba(255,255,255,0.18)"></div>
+          <img src="assets/qitech-positive.svg" alt="QI Tech · Coordenador Líder" style="max-height: 28px; filter: brightness(0) invert(1); width: 87px; height: 30px">
+        </div>
+        <div class="m-footer-anbima" style="display: flex; align-items: center; justify-content: flex-end; gap: 10px; flex-wrap: wrap">
+          <img src="assets/anbima-ofertas-publicas.png" alt="ANBIMA Ofertas Públicas" style="height:52px;width:auto"><img src="assets/anbima-gestao-de-recursos.png" alt="ANBIMA Gestão de Recursos" style="height:52px;width:auto"><img src="assets/anbima-coordenadores-ofertas-publicas.png" alt="ANBIMA Coordenadores" style="height:52px;width:auto">
+          
+          
+          
+        <img src="assets/anbima-administracao-fiduciaria.png" alt="ANBIMA Administração Fiduciária" style="width: auto; height: 52px"></div>
+
+
+
+      </div><div style="font-size:12px;display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;align-items:center">
+        <span>© 2026 SNEL11 · Suno Asset. Todos os direitos reservados.</span>
+        <span style="color:rgba(255,255,255,0.4)">Investindo hoje na energia do amanhã.</span>
+      </div>
+    </div>
+  </footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { usina: 0, anim: true };
+  LEN = 6;
+  CLONES = 3;
+  componentDidUpdate(_, prev) {
+    if (this.state.usina >= this.LEN && this.state.anim) {
+      clearTimeout(this._t);
+      this._t = setTimeout(() => this.setState(s => ({ usina: ((s.usina % this.LEN) + this.LEN) % this.LEN, anim: false })), 440);
+    }
+  }
+  nextUsina = () => this.setState(s => ({ usina: s.usina + 1, anim: true }));
+  prevUsina = () => {
+    if (this.state.usina <= 0) {
+      this.setState({ usina: this.LEN, anim: false });
+      requestAnimationFrame(() => requestAnimationFrame(() => this.setState({ usina: this.LEN - 1, anim: true })));
+    } else {
+      this.setState(s => ({ usina: s.usina - 1, anim: true }));
+    }
+  };
+  goUsina = (i) => this.setState({ usina: i, anim: true });
+  comoRef = React.createRef();
+  comoNext = () => {
+    const el = this.comoRef.current; if (!el) return;
+    const max = el.scrollWidth - el.clientWidth;
+    if (el.scrollLeft >= max - 5) el.scrollTo({ left: 0, behavior: 'smooth' });
+    else el.scrollBy({ left: el.clientWidth, behavior: 'smooth' });
+  };
+  comoPrev = () => {
+    const el = this.comoRef.current; if (!el) return;
+    if (el.scrollLeft <= 5) el.scrollTo({ left: el.scrollWidth, behavior: 'smooth' });
+    else el.scrollBy({ left: -el.clientWidth, behavior: 'smooth' });
+  };
+  alocRef = React.createRef();
+  alocNext = () => {
+    const el = this.alocRef.current; if (!el) return;
+    const max = el.scrollWidth - el.clientWidth;
+    if (el.scrollLeft >= max - 5) el.scrollTo({ left: 0, behavior: 'smooth' });
+    else el.scrollBy({ left: el.clientWidth, behavior: 'smooth' });
+  };
+  alocPrev = () => {
+    const el = this.alocRef.current; if (!el) return;
+    if (el.scrollLeft <= 5) el.scrollTo({ left: el.scrollWidth, behavior: 'smooth' });
+    else el.scrollBy({ left: -el.clientWidth, behavior: 'smooth' });
+  };
+  renderVals() {
+    const wa = (s) => React.createElement('svg', { width: s, height: s, viewBox: '0 0 24 24', fill: 'none' },
+      React.createElement('path', { d: 'M19.05 4.91C18.13 3.98 17.04 3.25 15.84 2.75C14.63 2.25 13.34 2 12.04 2C6.58 2 2.13 6.45 2.13 11.91C2.13 13.66 2.59 15.36 3.45 16.86L2.05 22L7.3 20.62C8.75 21.41 10.38 21.83 12.04 21.83C17.5 21.83 21.95 17.38 21.95 11.92C21.95 9.27 20.92 6.78 19.05 4.91ZM12.04 20.15C10.56 20.15 9.11 19.75 7.84 19L7.54 18.82L4.42 19.64L5.25 16.6L5.05 16.29C4.23 14.98 3.79 13.46 3.79 11.91C3.79 7.37 7.49 3.67 12.03 3.67C14.23 3.67 16.3 4.53 17.85 6.09C19.42 7.66 20.26 9.73 20.26 11.92C20.28 16.46 16.58 20.15 12.04 20.15ZM16.56 13.99C16.31 13.87 15.09 13.27 14.87 13.18C14.64 13.1 14.48 13.06 14.31 13.3C14.14 13.55 13.67 14.11 13.53 14.27C13.39 14.44 13.24 14.46 12.99 14.33C12.74 14.21 11.94 13.94 11 13.1C10.26 12.44 9.77 11.63 9.62 11.38C9.48 11.13 9.6 11 9.73 10.87C9.84 10.76 9.98 10.58 10.1 10.44C10.22 10.3 10.27 10.19 10.35 10.03C10.43 9.86 10.39 9.72 10.33 9.6C10.27 9.48 9.77 8.26 9.57 7.76C9.37 7.28 9.16 7.34 9.01 7.33H8.53C8.36 7.33 8.1 7.39 7.87 7.64C7.65 7.89 7.01 8.49 7.01 9.71C7.01 10.93 7.9 12.11 8.02 12.27C8.14 12.44 9.77 14.94 12.25 16.01C12.84 16.27 13.3 16.42 13.66 16.53C14.25 16.72 14.79 16.69 15.22 16.63C15.7 16.56 16.69 16.03 16.89 15.45C17.1 14.87 17.1 14.38 17.03 14.27C16.96 14.16 16.81 14.11 16.56 13.99Z', fill: 'currentColor', stroke: 'none' }));
+    const usinaSlides = [
+      { title: 'Abade', src: 'assets/usina-abade.png' },
+      { title: 'Alto Paraná', src: 'assets/usina-alto-parana.png' },
+      { title: 'Canápolis', src: 'assets/usina-canapolis.png' },
+      { title: 'Cruzeiro do Sul', src: 'assets/usina-cruzeiro-do-sul.png' },
+      { title: 'Jacutinga', src: 'assets/usina-jacutinga.png' },
+      { title: 'Monte Carmelo', src: 'assets/usina-monte-carmelo.png' },
+      { title: 'Mundo Melhor', src: 'assets/usina-mundo-melhor.png' },
+      { title: 'Petrolina', src: 'assets/usina-petrolina.png' },
+      { title: 'Remanso', src: 'assets/usina-remanso.png' },
+      { title: 'São Felices do Coribe', src: 'assets/usina-sao-felices-coribe.png' },
+      { title: 'Tororó', src: 'assets/usina-tororo.png' },
+    ];
+    const uLen = usinaSlides.length;
+    const uIdx = this.state.usina;
+    const active = ((uIdx % uLen) + uLen) % uLen;
+    const slidesRender = usinaSlides.concat(usinaSlides.slice(0, this.CLONES));
+    const usinaDots = usinaSlides.map((_, i) => ({
+      bg: i === active ? '#2362C9' : '#CFE3FD',
+      w: i === active ? '22px' : '8px',
+      go: () => this.goUsina(i),
+    }));
+    return {
+      wa: wa(20),
+      waMd: wa(18),
+      waSm: wa(14),
+      usinaSlides: slidesRender,
+      usinaIdx: uIdx,
+      usinaTransition: this.state.anim ? 'transform 420ms cubic-bezier(0.2,0.7,0.2,1)' : 'none',
+      usinaDots,
+      nextUsina: this.nextUsina,
+      prevUsina: this.prevUsina,
+      comoRef: this.comoRef,
+      comoNext: this.comoNext,
+      comoPrev: this.comoPrev,
+      alocRef: this.alocRef,
+      alocNext: this.alocNext,
+      alocPrev: this.alocPrev,
+      usinasStats: [
+        { value: '22', label: 'Usinas em operação' },
+        { value: '9', label: 'Estados com presença' },
+        { value: '87,8 MWp', label: 'Capacidade instalada total' },
+        { value: 'até 2037', label: 'Contratos PPA vigentes' },
+      ],
+      alocacaoRows: [
+        { metric: 'Montante Captado', help: 'Total de recursos captados pelo fundo.', now: 'R$ 889.900.000', after: 'R$ 3.293.645.163', delta: '+270%' },
+        { metric: 'Rendimentos', help: 'Distribuição mensal por cota.', now: 'R$ 0,1000', after: 'R$ 0,1012', delta: '+1,2%' },
+        { metric: 'Exposição Distribuidoras', help: 'Número de distribuidoras na carteira.', now: '11', after: '20', delta: '+9' },
+        { metric: 'Nº de Projetos', help: 'Total de projetos solares no portfólio do fundo.', now: '37', after: '224', delta: '+187' },
+      ],
+      detalhes: [
+        { label: 'Preço de Subscrição', value: 'R$ 8,65*', note: '*O valor inclui a Taxa de Distribuição primária de R$ 0,33 por Nova Cota (preço de integralização: R$ 8,32).' },
+        { label: 'Ticker de Negociação', value: 'SNEL12', note: 'Esse é o ticker que irá aparecer na corretora para reservar o Direito de Preferência.' },
+        { label: 'Fator de proporção', value: 'Fator 2,0', note: 'No período de Direito de Preferência permite comprar o dobro de cotas da sua carteira. Ex: quem possui 100 cotas pode comprar até 200 novas.' },
+      ],
+      downloads: [
+        { title: 'Prospecto Definitivo', meta: 'PDF · 4,2 MB', href: 'https://www.suno.com.br/asset/wp-content/uploads/2022/11/Prospecto.pdf' },
+      ],
+      restCrono: [
+        { date: '19 jun 2026', tag: 'Data-base', title: 'Data-base / Data de corte', desc: 'Quem tiver SNEL11 nesta data recebe o direito de subscrição (SNEL12), proporcional ao número de cotas detidas.' },
+        { date: '23 jun 2026', tag: 'Preferência', title: 'Início das reservas do Direito de Preferência', desc: 'Cotistas que receberam o direito de subscrição (SNEL12) podem realizar suas reservas a partir desta data junto à sua corretora habilitada.' },
+        { date: '06 jul 2026', tag: 'Preferência', title: 'Fim das reservas do Direito de Preferência', desc: 'Encerramento do prazo para exercício do direito de preferência. Reservas não realizadas até esta data implicam na perda do direito.' },
+        { date: '08 jul 2026', tag: 'Liquidação', title: 'Liquidação do Direito de Preferência', desc: 'Data de liquidação financeira das cotas subscritas no período de preferência. O débito ocorre automaticamente na conta vinculada à corretora.' },
+        { date: '10 jul 2026', tag: 'Sobras', title: 'Início das reservas de Sobras e Montante Adicional', desc: 'Abertura do período para reservas das cotas não subscritas no direito de preferência. Disponível para cotistas atuais e novos investidores.' },
+        { date: '16 jul 2026', tag: 'Sobras', title: 'Fim das reservas de Sobras e Montante Adicional', desc: 'Encerramento do prazo para reservas de sobras e montante adicional. Após esta data, a participação nesta fase não será possível.' },
+        { date: '23 jul 2026', tag: 'Liquidação', title: 'Liquidação das Sobras e Montante Adicional', desc: 'As cotas subscritas na fase de sobras e montante adicional são liquidadas e creditadas na conta do investidor.' },
+      ],
+      risks: [
+        { num: 'i', title: 'Não concretização da Oferta', desc: 'A oferta pode não atingir o volume mínimo ou ser cancelada. Reservas são devolvidas sem correção.' },
+        { num: 'ii', title: 'Risco do Estudo de Viabilidade', desc: 'As projeções podem não se concretizar. Premissas econômicas e operacionais são estimativas, não garantias.' },
+        { num: 'iii', title: 'Não materialização das perspectivas', desc: 'Rentabilidade, distribuições e crescimento são projeções. Resultados reais podem divergir significativamente.' },
+        { num: 'iv', title: 'Risco de mercado externo', desc: 'Instabilidade em economias emergentes ou nos EUA pode impactar o preço das cotas no mercado secundário.' },
+        { num: 'v', title: 'Distribuição parcial', desc: 'Se a captação for parcial, o plano de aquisição de novos ativos pode ser reduzido ou adiado.' },
+      ],
+    };
+  }
+
+  componentDidMount() {
+    /* Scroll reveal: add [data-shown] when an element enters the viewport.
+       Uses a data-attribute (not className/inline style), so React re-renders
+       never strip it; a safety timer guarantees everything shows even if the
+       observer is delayed (e.g. inside the standalone bundle splash). */
+    try {
+      const els = Array.from(document.querySelectorAll('[data-reveal]'));
+      const show = (el) => el.setAttribute('data-shown', '');
+      if (!('IntersectionObserver' in window)) { els.forEach(show); return; }
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) { show(e.target); io.unobserve(e.target); }
+        });
+      }, { threshold: 0.12, rootMargin: '0px 0px -6% 0px' });
+      els.forEach((el) => io.observe(el));
+      // Reveal anything in view now, and on scroll/resize — independent of the
+      // observer, so it works even where IO is throttled (e.g. the standalone bundle).
+      const inView = (el) => {
+        const r = el.getBoundingClientRect();
+        return r.top < (window.innerHeight || 0) * 0.92 && r.bottom > 0;
+      };
+      const showInView = () => els.forEach((el) => { if (!el.hasAttribute('data-shown') && inView(el)) show(el); });
+      let raf = 0;
+      this._onScroll = () => { if (raf) return; raf = requestAnimationFrame(() => { raf = 0; showInView(); }); };
+      window.addEventListener('scroll', this._onScroll, { passive: true });
+      window.addEventListener('resize', this._onScroll, { passive: true });
+      this._revealSafety = setTimeout(showInView, 700);
+      window.addEventListener('load', () => setTimeout(showInView, 120));
+    } catch (err) { /* no-op */ }
+    this._typewriter();
+    this._initHeroShader();
+  }
+
+  _initHeroShader() {
+    try {
+      if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      const host = document.getElementById('hero-shader-bg');
+      if (!host || host.dataset.shaderReady) return;
+      host.dataset.shaderReady = '1';
+
+      // Brand-tuned palette (navy → mid-blue → sun → orange).
+      // Wrapper #hero-shader-bg already caps opacity at 5%.
+      const colors = ['#0D184D', '#2362C9', '#609CFC', '#FABE1E', '#FE8E23'];
+
+      import('https://esm.sh/@paper-design/shaders@0.0.55')
+        .then((mod) => {
+          const { ShaderMount, meshGradientFragmentShader, getShaderColorFromString, ShaderFitOptions } = mod;
+          if (!ShaderMount || !meshGradientFragmentShader) {
+            console.warn('[hero-shader] paper-shaders exports missing');
+            return;
+          }
+          const uniforms = {
+            u_colors: colors.map(getShaderColorFromString),
+            u_colorsCount: colors.length,
+            u_distortion: 0.9,
+            u_swirl: 0.55,
+            u_grainMixer: 0,
+            u_grainOverlay: 0,
+            u_fit: ShaderFitOptions.cover,
+            u_rotation: 0,
+            u_scale: 1,
+            u_offsetX: 0,
+            u_offsetY: 0,
+            u_originX: 0.5,
+            u_originY: 0.5,
+            u_worldWidth: 0,
+            u_worldHeight: 0,
+          };
+          // ShaderMount(parent, fragmentShader, uniforms, webglAttrs, speed, frame, minPxRatio, maxPxCount)
+          new ShaderMount(host, meshGradientFragmentShader, uniforms, undefined, 0.35, 0);
+        })
+        .catch((err) => { console.warn('[hero-shader] import failed', err); });
+    } catch (err) { /* no-op */ }
+  }
+  _typewriter() {
+    try {
+      const h1 = document.querySelector('.m-hero-h1');
+      if (!h1) return;
+      h1.setAttribute('data-shown', ''); // block is shown; typewriter drives the entrance
+      const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (reduce) return;
+      // Split text into per-character spans once (keeps each char's colored parent).
+      if (!h1.dataset.twSplit) {
+        const walker = document.createTreeWalker(h1, NodeFilter.SHOW_TEXT, null);
+        const textNodes = [];
+        let tn;
+        while ((tn = walker.nextNode())) textNodes.push(tn);
+        textNodes.forEach((node) => {
+          const frag = document.createDocumentFragment();
+          for (const ch of node.nodeValue) {
+            const s = document.createElement('span');
+            s.className = 'tw-char';
+            s.textContent = ch;
+            s.style.opacity = '0';
+            frag.appendChild(s);
+          }
+          node.parentNode.replaceChild(frag, node);
+        });
+        h1.dataset.twSplit = '1';
+      }
+      const chars = Array.from(h1.querySelectorAll('.tw-char'));
+      if (!chars.length) return;
+      let caret = h1.querySelector('.tw-caret');
+      if (!caret) {
+        caret = document.createElement('span');
+        caret.className = 'tw-caret';
+        caret.textContent = '|';
+        caret.style.cssText = 'color:#FABE1E;font-weight:300;margin-left:2px;animation:caretBlink 0.85s steps(1) infinite;';
+      }
+      // Wall-clock driven type pass; loops so it restarts every 5s.
+      const per = 42;
+      const startDelay = 240;
+      const typeOnce = () => {
+        if (this._typeRaf) cancelAnimationFrame(this._typeRaf);
+        chars.forEach((c) => { c.style.opacity = '0'; });
+        const start = performance.now() + startDelay;
+        const tick = () => {
+          const elapsed = performance.now() - start;
+          const n = elapsed < 0 ? 0 : Math.min(chars.length, Math.floor(elapsed / per) + 1);
+          for (let k = 0; k < n; k += 1) chars[k].style.opacity = '1';
+          if (n > 0 && chars[n - 1]) chars[n - 1].after(caret);
+          if (n < chars.length) {
+            this._typeRaf = requestAnimationFrame(tick);
+          } else {
+            chars[chars.length - 1].after(caret);
+          }
+        };
+        this._typeRaf = requestAnimationFrame(tick);
+      };
+      typeOnce();
+      clearInterval(this._typeLoop);
+      this._typeLoop = setInterval(typeOnce, 5000);
+    } catch (err) { /* no-op */ }
+  }
+  componentWillUnmount() {
+    clearTimeout(this._t);
+    clearTimeout(this._revealSafety);
+    clearTimeout(this._typeTimer);
+    clearInterval(this._typeLoop);
+    if (this._typeRaf) cancelAnimationFrame(this._typeRaf);
+    if (this._onScroll) {
+      window.removeEventListener('scroll', this._onScroll);
+      window.removeEventListener('resize', this._onScroll);
+    }
+  }
+}
+</script>
+</body>
+</html>
